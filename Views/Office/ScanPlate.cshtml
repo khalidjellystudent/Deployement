@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Scan License Plate";
+    Layout = "_OfficeLayout";
+}
+<head>
+
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-qrcode me-2"></i> Plate Lookup</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="SearchTickets" method="get">
+                    <div class="input-group mb-3">
+                        <input type="text"
+                               name="plateNumber"
+                               class="form-control form-control-lg"
+                               placeholder="Enter plate number (e.g. ABC1234)"
+                               required>
+                        <button class="btn btn-danger" type="submit">
+                            <i class="fas fa-search me-2"></i> Scan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>

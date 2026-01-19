@@ -1,0 +1,428 @@
+﻿@{
+    ViewData["Title"] = "قوانين المرور الليبية";
+    Layout = "_Layout";
+}
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    body {
+        background-color: #f5f7fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    h5{
+        align-content : center;
+        margin: auto;
+    }
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        color: #2c3e50;
+        font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #007bff, #00bcd4);
+            border-radius: 2px;
+        }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 30px;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+    .card-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border-bottom: none;
+        padding: 20px 25px;
+    }
+
+        .card-header h4 {
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+    .law-section {
+        position: relative;
+        padding-right: 25px;
+        margin: 40px 0;
+        transition: all 0.3s ease;
+    }
+
+        .law-section:not(:last-child):after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e0e6ed, transparent);
+        }
+
+        .law-section h5 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+            display: inline-block;
+        }
+
+    .law-article {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-right: 4px solid #e9ecef;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+        .law-article:hover {
+            transform: translateX(-5px);
+            border-right-color: #007bff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .law-article h6 {
+            color: #007bff;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+            .law-article h6:before {
+                content: '\f05a';
+                font-family: 'Font Awesome 5 Free';
+                font-weight: 900;
+                margin-left: 10px;
+                font-size: 0.9em;
+                color: #007bff;
+            }
+
+        .law-article p {
+            color: #4a5568;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        .law-article ul, .law-article ol {
+            padding-right: 25px;
+            margin: 10px 0;
+        }
+
+        .law-article li {
+            margin-bottom: 8px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+    .alert-info {
+        background-color: #e3f2fd;
+        border: none;
+        border-right: 4px solid #2196f3;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+        .alert-info h5 {
+            color: #0d47a1;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .alert-info p {
+            color: #0d47a1;
+            margin-bottom: 0;
+        }
+
+    .card-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        padding: 15px 25px;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .container {
+            padding: 0 15px;
+        }
+
+        .law-article {
+            padding: 15px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+        }
+    }
+
+    /* Animation */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .law-article {
+        animation: fadeIn 0.5s ease-out forwards;
+        opacity: 0;
+    }
+
+        .law-article:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .law-article:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .law-article:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .law-article:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .law-article:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+</style>
+
+<div class="container mt-5" dir="rtl">
+    <h1 class="text-center mb-5">قوانين المرور الليبية</h1>
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0 text-center">
+                قانون رقم (11) لسنة 1984
+                <br />
+                 بشأن المرور على الطريق العام
+            </h4>
+        </div> 
+                    <a href="https://security-legislation.ly/ar/latest-laws/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%B1%D9%82%D9%85-11-%D9%84%D8%B3%D9%86%D8%A9-1984-%D8%A8%D8%B4%D8%A3%D9%86-%D8%A7%D9%84%D9%85%D8%B1%D9%88%D8%B1-%D8%B9%D9%84%D9%89-%D8%A7%D9%84%D8%B7%D8%B1%D9%8A/" target="_blank" rel="noopener noreferrer"><p class = " text-center text-blue-500 underline m-2 text-lg"> نقلا عن موقع ال CAF</p></a>
+        <div class="card-body">
+            <div class="law-section mb-4">
+                <h5 class="text-primary">الفصل الأول
+                    <br />
+                    المركبات الآلية و أنواعها
+                </h5>
+                <div class="law-article">
+                    <h6>المادة 1</h6>
+                    <p>
+                        في تطبيق أحكام هذا القانون، يقصد بالمركبة الآلية كل مركبة ذات محرك آلي معدة للسير على الطرق العامة عدا المعدة للسير على السكك الحديدية.
+
+                        وتعتبر في حكم المركبة الآلية كل مركبة مقطورة بإحدى المركبات الآلية.
+
+                        وتعتبر من الطرق العامة في تطبيق أحكام هذا القانون الطرق والمسالك الصالحة لمرور المركبات داخل المزارع والمنشآت العامة أو الخاصة وما في حكمها.
+                    </p>
+                </div>
+                <div class="law-article mt-4">
+                    <h6>المادة 2</h6>
+                    <p>تتحدد أنواع المركبات الآلية بما يلي:</p>
+                    <ul>1- سيارة خاصة: وهي المعدة للاستعمال الشخصي.</ul>
+                    <ul>2- سيارة ركوب عامة: وهي المعدة لنقل سبعة ركاب فأقل بمقابل.</ul>
+                    <ul>3- سيارة حافلة: وهي المعدة للنقل العام أو الخاص للركاب أو لنقل الركاب في رحلات سياحية.</ul>
+                    <ul>4- سيارة نقل بضائع: وهي المعدة لنقل البضائع والمهمات والحيوانات سواء كانت مخصصة للاستعمال الخاص أو للنقل بمقابل ويجوز لهذه السيارة حمل بعض الركاب في حدود ما تقرره اللجنة الشعبية العامة للعدل.</ul>
+                    <ul>5- سيارة جرارة: وهي معدة لجر المركبات المقطورة ولا يسمح تصميمها بوضع أية حمولة عليها.</ul>
+                    <ul>6- مركبة مقطورة: وهي المعدة للسير على عجلتين فأكثر مقطورة بمركبة آلية.</ul>
+                    <ul>7- دراجة نارية: وهي المعدة للسير على عجلتين أو ثلاث عجلات ولا يكون تصميمها على شكل سيارة مهما بلغت قوة المحرك.</ul>
+                    <p>ويجوز بقرار من اللجنة الشعبية العامة للعدل إلحاق أي نوع آخر من المركبات الآلية بإحدى الأنواع المذكورة في هذه المادة.</p>
+                </div>
+            </div>
+
+            <div class="law-section mb-4">
+                <h5 class="text-primary">الفصل الثاني
+                    <br />
+                    الترخيص للمركبات الآلية
+                </h5>
+                <div class="law-article">
+                    <h6>المادة 3</h6>
+                    <p>مع عدم الإخلال بأحكام الاتفاقيات الدولية التي تكون الجماهيرية العربية الليبية الشعبية الاشتراكية طرفاً فيها، لا يجوز تسيير أية مركبة آلية على الطرق العامة دون ترخيص بذلك من الجهة المختصة بالترخيص طبقاً لأحكام هذا القانون واللوائح والقرارات الصادرة بمقتضاه.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 4</h6>
+                    <p>
+                        يقدم طلب الترخيص للمركبة الآلية من قبل مالكها أو من وكيله على النموذج الذي تعده اللجنة الشعبية العامة للعدل لهذا الغرض مرفقة به المستندات المثبتة لشخصية الطالب وملكيته للمركبة، وكذلك التوكيل في حالة تقديم الطلب من قبل وكيل المالك.
+
+                        فإذا كانت المركبة ستستخدم كسيارة ركوب عامة فيجب أن ترفق بالطلب كذلك رخصة من البلدية المختصة باستخدام المركبة الآلية في هذا الغرض، فإذا كانت حدود السير تجاوز البلدية إلى بلدية أخرى أو أكثر فيجب أن ترفق بالطلب موافقة كتابية من اللجنة الشعبية العامة للعدل على استخدام المركبة على الخطوط المذكورة.
+
+                        وإذا كانت المركبة ستستخدم لأغراض سياحية فيجب أن ترفق بالطلب – إضافة إلى ما هو مبين بالفقرة السابقة – موافقة الجهات المختصة على استخدامها في هذا الغرض وذلك طبقاً لما تحدده اللجنة الشعبية العامة للعدل.
+                    </p>
+                </div>
+                <div class="law-article">
+                    <h6>المادة 5</h6>
+                    <p>
+                        تقدم المركبة الآلية المطلوب لها الترخيص لفحصها فنياً من قبل مالكها أو وكيله أو المسئول عنها وذلك في الزمان والمكان اللذين تحددهما الجهة المختصة بالترخيص.
+
+                        ويشمل الفحص الفني تجربة أجهزة المركبة والتحقق من استيفائها لشروط المتانة والأمن وذلك كله وفقاً للتحديد الذي يصدر به قرار من اللجنة الشعبية العامة للعدل.
+                    </p>
+                </div>
+                <div class="law-article">
+                    <h6>المادة 6</h6>
+                    <p>إذا ثبت من خلال الفحص الفني عدم صلاحية المركبة الآلية فيخطر طالب الترخيص بكتاب مسبب برفض طلبه وذلك خلال عشرة أيام من تاريخ الفحص.</p>
+                </div>
+                <div class="law-article">
+                    <h6>المادة 7</h6>
+                    <p>إذا ثبت من الفحص الفني صلاحية المركبة الآلية فعلى طالب الترخيص أن يقدم وثيقة تأمين عنها ضد الحوادث لمدة الترخيص صادرة من الشركة التي تزاول عمليات التأمين على المركبات الآلية في الجماهيرية العربية الليبية الشعبية الاشتراكية ووفقاً لأحكام قانون التأمين الإجباري عن المسئولية المدنية الناشئة عن حوادث المركبات الآلية.</p>
+                </div>
+                <div class="law-article">
+                    <h6>المادة 8</h6>
+                    <p>لا يجوز الترخيص لسيارة ركوب عامة أو تجديد ترخيصها إذا مضى على صنعها عشر سنوات إلا إذا ثبت من الفحص الفني صلاحيتها لمدة أخرى يحددها قرار الفحص.</p>
+                </div>
+                <div class="law-article">
+                    <h6>المادة 9</h6>
+                    <ul>لا يجوز الترخيص لسيارة ركوب عامة بالعمل داخل حدود البلدية الواحدة ما لم تكن مجهزة بعداد توافق عليه الجهة المختصة بالترخيص.</ul>
+                    <ul>ويجوز لشرطة المرور فحص العداد في أي وقت فإن وجد به خلل حجزت اللوحتان المعدنيتان إلى أن يتم إصلاح العداد أو الاستعاضة عنه بعداد سيلم.</ul>
+                    <ul>ويتحدد مقابل استعمال سيارات الركوب العامة للجمهور بقرار من اللجنة الشعبية للبلدية وذلك فيما يتعلق بالنقل داخل حدود البلدية وبقرار من اللجنة الشعبية العامة للمرافق فيما يتعلق بالنقل بين بلديتين أو أكثر.</ul>
+                </div>
+                <div class="law-article">
+                    <h6>المادة 10</h6>
+                    <ul>تصدر التراخيص على النموذج المعد لذلك متضمناً البيانات التي تحددها اللجنة الشعبية العامة للعدل وتدون هذه البيانات في سجل خاص يحفظ لدى الجهة المختصة بالترخيص كما تدون به كافة التغييرات التي تدخل على الترخيص.</ul>
+                    <ul>ويجب أن يحدد في الترخيص أقصى وزن وارتفاع وعرض للحمولة بالنسبة لسيارات نقل البضائع، وأقصى عدد الركاب المصرح بنقلهم بالنسبة لسيارات الركوب والدراجات النارية.</ul>
+                </div>
+                <p class="align-content-center"> <strong>I am here for now</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </div>
+
+            <div class="law-section mb-4">
+                <h5 class="text-primary">الباب الثالث: قواعد المرور</h5>
+                <div class="law-article">
+                    <h6>المادة 5</h6>
+                    <p>على السائقين الالتزام بالسرعة المقررة والانتباه إلى إشارات المرور وعلامات الطريق.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 6</h6>
+                    <p>يمنع القيادة تحت تأثير الكحول أو المخدرات أو أي مواد تؤثر على الوعي.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 7</h6>
+                    <p>يجب على السائقين إعطاء الأولوية للمشاة عند معابر المشاة.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 8</h6>
+                    <p>يجب على السائقين حمل وثيقة التأمين الإلزامي على المركبة.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 9</h6>
+                    <p>يجب أن تكون المركبة مجهزة بمثلث تحذير وطفاية حريق صالحة للاستخدام.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 10</h6>
+                    <p>يمنع استخدام الهاتف المحمول أثناء القيادة إلا باستخدام السماعات.</p>
+                </div>
+            </div>
+
+            <div class="law-section">
+                <h5 class="text-primary">الباب الرابع: السرعات المسموح بها</h5>
+                <div class="law-article">
+                    <h6>المادة 11</h6>
+                    <p>السرعة القصوى داخل المدن 60 كم/ساعة.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 12</h6>
+                    <p>السرعة القصوى خارج المدن 100 كم/ساعة.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 13</h6>
+                    <p>السرعة القصوى للشاحنات 80 كم/ساعة.</p>
+                </div>
+            </div>
+
+            <div class="law-section">
+                <h5 class="text-primary">الباب الخامس: العقوبات</h5>
+                <div class="law-article">
+                    <h6>المادة 8</h6>
+                    <p>يعاقب بغرامة لا تقل عن مائة دينار ولا تجاوز خمسمائة دينار كل من خالف أحكام هذا القانون.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 14</h6>
+                    <p>يعاقب بغرامة مالية تصل إلى 500 دينار على تجاوز السرعة المسموح بها.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 15</h6>
+                    <p>يعاقب بغرامة 300 دينار على عدم حمل رخصة القيادة أو مستندات المركبة.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 16</h6>
+                    <p>يعاقب بغرامة 1000 دينار على القيادة تحت تأثير الكحول أو المخدرات.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 17</h6>
+                    <p>يجوز للمحكمة أن تقضي بحرمان المخالف من الحصول على رخصة قيادة لمدة لا تزيد عن سنة.</p>
+                </div>
+
+                <div class="law-article mt-4">
+                    <h6>المادة 18</h6>
+                    <p>في حالة تكرار المخالفات، قد تصل مدة الحرمان من رخصة القيادة إلى 3 سنوات.</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            <small>آخر تحديث: سبتمبر 2023</small>
+        </div>
+    </div>
+
+    <div class="alert alert-info mt-4 text-center">
+        <h5>ملاحظة هامة:</h5>
+        <p>هذه النسخة مختصرة من القانون. للاطلاع على النص الكامل، يرجى زيارة الموقع الرسمي لوزارة الداخلية الليبية.</p>
+    <a href="https://security-legislation.ly/ar/latest-laws/%D9%82%D8%A7%D9%86%D9%88%D9%86-%D8%B1%D9%82%D9%85-11-%D9%84%D8%B3%D9%86%D8%A9-1984-%D8%A8%D8%B4%D8%A3%D9%86-%D8%A7%D9%84%D9%85%D8%B1%D9%88%D8%B1-%D8%B9%D9%84%D9%89-%D8%A7%D9%84%D8%B7%D8%B1%D9%8A/" target="_blank" rel="noopener noreferrer" class=" text-decoration-underline">نقلا عن موقع ال CAF </a>
+    </div>
+</div>

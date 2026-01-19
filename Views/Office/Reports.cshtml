@@ -1,0 +1,201 @@
+﻿@model TicketSystem.Models.OfficeReportsViewModel
+
+@{
+  ViewData["Title"] = "Reports";
+  Layout = "_OfficeLayout";
+}
+
+<div class="container mt-4" style="max-width: 1100px;">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h3 class="mb-0"><i class="fas fa-chart-line me-2"></i> Reports & Statistics</h3>
+    <div class="text-muted small">Updated: @DateTime.Now.ToString("yyyy-MM-dd HH:mm")</div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6 col-lg-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Tickets (last month)</div>
+          <div class="fs-3 fw-bold">@Model.TicketsLastMonth</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Tickets (this year)</div>
+          <div class="fs-3 fw-bold">@Model.TicketsThisYear</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total tickets</div>
+          <div class="fs-3 fw-bold">@Model.TotalTickets</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total users</div>
+          <div class="fs-3 fw-bold">@Model.TotalUsers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">Paid vs Unpaid</div>
+        <div class="card-body">
+          <canvas id="paidChart" height="140"></canvas>
+          <div class="small text-muted mt-2">
+            Paid is counted where ticket <code>Status</code> equals <code>Paid</code> (case-insensitive).
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">Tickets per month (@DateTime.Now.Year)</div>
+        <div class="card-body">
+          <canvas id="monthlyChart" height="140"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">Tickets (last 30 days)</div>
+        <div class="card-body">
+          <canvas id="last30Chart" height="150"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">Top violations (all time)</div>
+        <div class="card-body">
+          <canvas id="violationsChart" height="150"></canvas>
+          <div class="small text-muted mt-2">
+            Based on comma-separated values in <code>Ticket.Violations</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    (function () {
+      const paid = @Model.PaidTickets;
+      const unpaid = @Model.UnpaidTickets;
+
+      const monthly = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyTicketsThisYear));
+      const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+      const last30Labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Last30DaysLabels));
+      const last30Counts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Last30DaysTicketCounts));
+
+      const topViolationLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopViolationLabels));
+      const topViolationCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopViolationCounts));
+
+      const paidCtx = document.getElementById('paidChart');
+      new Chart(paidCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Paid', 'Unpaid'],
+          datasets: [{
+            data: [paid, unpaid],
+            backgroundColor: ['#198754', '#dc3545'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+
+      const monthlyCtx = document.getElementById('monthlyChart');
+      new Chart(monthlyCtx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Tickets',
+            data: monthly,
+            backgroundColor: '#0d6efd'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+
+      const last30Ctx = document.getElementById('last30Chart');
+      new Chart(last30Ctx, {
+        type: 'line',
+        data: {
+          labels: last30Labels,
+          datasets: [{
+            label: 'Tickets',
+            data: last30Counts,
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13,110,253,0.15)',
+            tension: 0.25,
+            fill: true,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+
+      const violationsCtx = document.getElementById('violationsChart');
+      new Chart(violationsCtx, {
+        type: 'bar',
+        data: {
+          labels: topViolationLabels,
+          datasets: [{
+            label: 'Count',
+            data: topViolationCounts,
+            backgroundColor: '#6f42c1'
+          }]
+        },
+        options: {
+          responsive: true,
+          indexAxis: 'y',
+          scales: {
+            x: { beginAtZero: true, ticks: { precision: 0 } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    })();
+  </script>
+}

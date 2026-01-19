@@ -1,0 +1,59 @@
+﻿@model IEnumerable<TicketSystem.Models.User>
+@{
+    ViewData["Title"] = "قائمة المستخدمين";
+    Layout = "_AdminLayout";
+}
+
+
+<section class="p-6 bg-gray-100 min-h-screen">
+    <div class="max-w-7xl mx-auto">
+
+        <!-- Page Heading -->
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">جميع المستخدمين</h2>
+
+        <!-- Success Alert -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Users Table -->
+        <div class="overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+
+                <!-- Table Head -->
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">البريد الإلكتروني</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الاسم</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الدور</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">إجراءات</th>
+                    </tr>
+                </thead>
+
+                <!-- Table Body -->
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@user.Email</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@user.Name</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@user.Role</td>
+                            <td class="px-6 py-4 text-center">
+                                <a asp-action="ResetPassword"
+                                   asp-route-email="@user.Email"
+                                   class="inline-block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800
+                              text-white px-4 py-2 rounded-lg text-sm">
+                                    إعادة التعيين
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</section>

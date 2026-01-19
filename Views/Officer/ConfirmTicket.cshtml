@@ -1,0 +1,73 @@
+﻿@model Ticket
+@{
+    ViewData["Title"] = "Confirm Ticket Details";
+    Layout = "_OfficerLayout";
+}
+<div class="container mt-4">
+        <h2>Confirm Ticket Details</h2>
+
+        <!-- Error Message Display -->
+        @if (ViewData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <strong>Error:</strong> @ViewData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="alert alert-info">
+            <strong>Please review the ticket details before issuing:</strong>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4>Ticket Information</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Violations:</dt>
+                    <dd class="col-sm-9">@Model.Violations</dd>
+
+                    <dt class="col-sm-3">License Plate:</dt>
+                    <dd class="col-sm-9">@Model.Plate_Number</dd>
+
+                    <dt class="col-sm-3">Email:</dt>
+                    <dd class="col-sm-9">@Model.Email</dd>
+
+                
+
+                    <dt class="col-sm-3">Violation Date/Time:</dt>
+                    <dd class="col-sm-9">@Model.Ticket_Time.ToString("g")</dd>
+
+                    <dt class="col-sm-3">Location:</dt>
+                    <dd class="col-sm-9">@Model.Violation_Place</dd>
+
+                    <dt class="col-sm-3">Fine Amount:</dt>
+                    <dd class="col-sm-9">@Model.FineAmount.ToString("C")</dd>
+
+                    <dt class="col-sm-3">Issued By:</dt>
+                    <dd class="col-sm-9">@Model.IssuedBy</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-4 " >
+            
+            <form asp-action="EditTicket" method="post">
+                @Html.AntiForgeryToken()
+                <div class="form-group float-start">
+                    <button type="submit" name="confirm" value="true" class="btn btn-warning btn-lg align-items-center">
+                        <i class="  btn btn-warning"></i> Edit the 
+                    </button>
+                </div>
+            </form>
+            <form asp-action="ConfirmTicket" method="post">
+                @Html.AntiForgeryToken()
+                <div class="form-group float-start">
+                    <button type="submit" name="confirm" value="true" class="btn btn-success btn-lg">
+                        <i class="fas fa-check"></i> Confirm and Issue Ticket
+                    </button>
+                </div>
+            </form>
+            
+        </div>
+    </div>

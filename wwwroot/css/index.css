@@ -1,0 +1,93 @@
+/* Minimal CSS to replicate the look from the Razor view. RTL-aware and responsive. */
+:root{
+    --blue-50:#eff6ff; --blue-100:#dbeafe; --blue-200:#bfdbfe; --blue-400:#60a5fa; --blue-600:#2563eb; --blue-700:#1e40af; --blue-800:#1e3a8a; --green-100:#dcfce7; --green-600:#16a34a; --purple-100:#f3e8ff; --purple-600:#7c3aed;
+}
+html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Naskh Arabic', 'Noto Sans', sans-serif;background:white;color:#0f172a}
+.container{max-width:1100px;margin:0 auto;padding:0 1rem}
+/* Hero */
+.hero-gradient{background:linear-gradient(135deg,var(--blue-400) 0%,#0c4a6e 100%);padding:4rem 0}
+.hero-grid{display:flex;gap:2rem;align-items:center;flex-wrap:wrap}
+.hero-content{flex:1;min-width:320px}
+.hero-illustration{flex:1;text-align:center}
+.hero-illustration img{max-width:420px;width:100%;}
+.badge{display:inline-flex;align-items:center;background:rgba(255,255,255,0.08);padding:.5rem 1rem;border-radius:999px;margin-bottom:1rem}
+.badge .dot{position:relative;display:inline-flex;margin-left:.5rem}
+.ping{position:absolute;inset:0;border-radius:999px;background:#34d399;opacity:.6;filter:blur(3px);animation:ping 1.5s infinite}
+.dot-inner{width:.6rem;height:.6rem;border-radius:999px;background:#10b981}
+.badge-text{color:#dbeafe;font-size:.95rem}
+.hero-title{font-size:2rem;margin:.5rem 0 1rem;color:white}
+.hero-title .highlight{color:#bfdbfe}
+.hero-sub{color:#e0f2fe;font-size:1.125rem;max-width:44rem}
+.hero-actions{display:flex;gap:1rem;margin-top:1rem}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.25rem;border-radius:12px;text-decoration:none}
+.btn.primary{background:linear-gradient(90deg,var(--blue-400),var(--blue-600));color:white;font-weight:700;box-shadow:0 10px 25px rgba(2,6,23,0.2)}
+.btn.outline{border:2px solid rgba(255,255,255,0.18);color:white;background:transparent}
+.trust{margin-top:1.5rem;color:var(--blue-100)}
+.avatars{display:inline-flex;align-items:center;gap:-8px;margin-top:.5rem}
+.avatars img{width:40px;height:40px;border-radius:50%;border:2px solid white}
+.avatars .more{display:inline-flex;width:40px;height:40px;border-radius:50%;align-items:center;justify-content:center;background:rgba(255,255,255,0.12);color:white;font-weight:600}
+.rating{margin-top:.5rem;color:var(--blue-100);font-weight:600}
+
+/* Features */
+.features{padding:4rem 0;background:#f8fafc}
+.section-header{text-align:center;margin-bottom:2.5rem}
+.section-header .pill{display:inline-block;padding:.4rem .9rem;background:linear-gradient(90deg,var(--blue-600),var(--blue-800));color:white;border-radius:999px;margin-bottom:.75rem}
+.section-header h2{font-size:1.75rem;margin:0.5rem 0}
+.section-header .lead{color:#475569}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem}
+.feature-card{background:white;padding:1.5rem;border-radius:18px;box-shadow:0 6px 18px rgba(2,6,23,0.06);position:relative;overflow:hidden}
+.feature-top{position:absolute;top:0;right:0;left:0;height:6px}
+.feature-top.blue{background:linear-gradient(90deg,var(--blue-600),var(--blue-800))}
+.feature-top.green{background:linear-gradient(90deg,#16a34a,#15803d)}
+.feature-top.purple{background:linear-gradient(90deg,#7c3aed,#6d28d9)}
+.feature-card .icon{font-size:1.75rem;background:var(--blue-50);display:inline-flex;padding:.5rem;border-radius:12px;margin-bottom:.75rem}
+.feature-card h3{margin:.5rem 0;color:#0f172a}
+.feature-card p{color:#475569}
+
+/* Stats */
+.stats{padding:4rem 0;background:linear-gradient(180deg,var(--blue-50),white)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.stat-card{background:white;padding:1.25rem;border-radius:16px;box-shadow:0 6px 18px rgba(2,6,23,0.06);text-align:center}
+.stat-icon{font-size:1.5rem;margin-bottom:.5rem}
+.stat-num{font-size:2rem;color:var(--blue-600);font-weight:800}
+.stat-title{font-weight:700;margin-top:.25rem}
+.stat-sub{color:#6b7280}
+
+/* CTA */
+.cta{padding:4rem 0;background:linear-gradient(90deg,#0f172a,#1e293b);color:white}
+.cta-inner{text-align:center}
+.cta h2{font-size:2rem;margin-bottom:1rem}
+.cta p{color:#c7d2fe;max-width:800px;margin:0 auto 1.5rem}
+.cta-actions{display:flex;gap:1rem;justify-content:center}
+.btn.large{padding:1rem 2rem;border-radius:20px}
+
+/* App banner */
+.app-banner{padding:4rem 0;background:linear-gradient(135deg,var(--blue-600),var(--blue-800));color:white}
+.app-inner{display:flex;gap:2rem;align-items:center;flex-wrap:wrap}
+.app-content{flex:1;min-width:280px}
+.app-mockup{flex:1;text-align:center}
+.app-mockup img{max-width:300px;width:100%}
+.stores{display:flex;gap:.75rem;margin-top:1rem}
+.store{padding:.6rem 1rem;border-radius:12px;background:rgba(255,255,255,0.08);display:inline-flex;align-items:center;gap:.5rem;color:white;text-decoration:none}
+.store.dark{background:rgba(0,0,0,0.18)}
+.store.disabled{opacity:.6;cursor:not-allowed}
+
+/* Manual */
+.manual{padding:4rem 0;background:linear-gradient(135deg,var(--blue-50),white)}
+.manual-inner{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.phone-frame{width:260px;height:420px;border-radius:28px;background:linear-gradient(180deg,white,white);padding:1rem;box-shadow:0 12px 30px rgba(2,6,23,0.08);position:relative}
+.phone-frame img{width:100%;height:100%;object-fit:contain;border-radius:16px}
+.phone-frame #caption{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.9);padding:.25rem .5rem;border-radius:999px;font-size:.8rem;color:#0369a1}
+.step-text{flex:1;padding:1rem;background:linear-gradient(180deg,var(--blue-100),white);border-radius:16px}
+.nav-buttons{display:flex;gap:1rem;justify-content:center;margin-top:1rem}
+.nav-buttons button{padding:.6rem 1rem;border-radius:12px;border:none;background:linear-gradient(90deg,var(--blue-400),var(--blue-600));color:white}
+.nav-buttons button:disabled{opacity:.5;cursor:not-allowed}
+
+/* Utilities */
+@media (max-width:800px){
+    .hero-grid{flex-direction:column-reverse}
+    .app-inner{flex-direction:column}
+    .manual-inner{flex-direction:column}
+}
+
+@keyframes ping{0%{transform:scale(1);opacity:1}75%{transform:scale(2);opacity:0}100%{opacity:0}}

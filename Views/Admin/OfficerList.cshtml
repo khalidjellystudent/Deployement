@@ -1,0 +1,35 @@
+﻿@model IEnumerable<TicketSystem.Models.User>
+@{
+    ViewData["Title"] = "قائمة الضباط";
+    Layout = "_AdminLayout";
+}
+
+<section class="p-6">
+    <h2 class="text-2xl font-bold mb-4">قائمة الضباط</h2>
+    <div class="bg-white shadow rounded-lg border border-gray-200 overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاسم</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">البريد الإلكتروني</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">إجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @foreach (var officer in Model)
+                {
+                    <tr>
+                        <td class="px-6 py-4">@officer.Name</td>
+                        <td class="px-6 py-4">@officer.Email</td>
+                        <td class="px-6 py-4 text-center">
+                            <a asp-action="OfficerDetails" asp-route-email="@officer.Email"
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                                عرض الأداء
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

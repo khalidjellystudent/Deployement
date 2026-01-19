@@ -1,0 +1,211 @@
+﻿@model OfficerDashboardViewModel
+@{
+    ViewData["Title"] = "Officer Dashboard";
+    Layout = "_OfficerLayout";
+}
+@section Styles {
+    <link href="~/css/dashboardstylesheet.css" rel="stylesheet" asp-append-version="true" />
+}
+
+<div class="container-fluid">
+        <h2 class="mb-4">
+            <i class="fas fa-tachometer-alt me-2"></i>
+            Dashboard
+        </h2>
+
+        <!-- Stats Cards -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">Tickets Today</h5>
+                        <h2>@Model.TicketsToday</h2>
+                        <i class="fas fa-ticket-alt float-end fa-2x text-primary opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">Paid Tickets</h5>
+                        <h2>@Model.PaidTickets</h2>
+                        <i class="fas fa-check-circle float-end fa-2x text-success opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-danger">Pending Tickets</h5>
+                        <h2>@Model.PendingTickets</h2>
+                        <i class="fas fa-exclamation-triangle float-end fa-2x text-danger opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-3 mb-4">
+                <div class="card dashboard-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-info">Total Tickets</h5>
+                        <h2>@Model.TotalTickets</h2>
+                        <i class="fas fa-clipboard-list float-end fa-2x text-info opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Tickets -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Recent Violations
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <!-- Desktop table -->
+                <div class="table-responsive recent-table text-center">
+                    <table class="table table-hover table-borderless align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Ticket #</th>
+                                <th>Plate</th>
+                                <th>Violation</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Fine Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ticket in Model.RecentTickets)
+                            {
+                                <tr class="officer-clickable-row" data-href="@Url.Action("DetailedTicket", new { id = ticket.Ticket_Id })">
+                                    <td>T-@ticket.Ticket_Id.ToString("D4")</td>
+                                    <td>@ticket.Plate_Number</td>
+                                    <td>@ticket.Violations</td>
+                                    <td>@ticket.Ticket_Time.ToString("MM/dd/yyyy")</td>
+                                    <td><span class="badge @GetStatusBadgeClass(ticket.Status)">@ticket.Status</span></td>
+                                    <td>@ticket.FineAmount.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile stacked list -->
+                <div class="recent-list">
+                    @if (Model.RecentTickets.Any())
+                    {
+                        @foreach (var ticket in Model.RecentTickets)
+                        {
+                            <div class="card ticket-card mb-3">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>T-@ticket.Ticket_Id.ToString("D4")</strong>
+                                        <span class="badge @GetStatusBadgeClass(ticket.Status)">@ticket.Status</span>
+                                    </div>
+
+                                    <p class="mb-1">
+                                        <i class="fas fa-car me-1"></i>@ticket.Plate_Number
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>@ticket.Violations
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="fas fa-calendar-alt me-1"></i>@ticket.Ticket_Time.ToString("MM/dd/yyyy")
+                                    </p>
+                                    <p class="mb-1">
+                                        <i class="fas fa-dollar-sign me-1"></i>@ticket.FineAmount.ToString("C")
+                                    </p>
+
+                                    <a asp-action="DetailedTicket"
+                                       asp-route-id="@ticket.Ticket_Id"
+                                       class="btn btn-sm btn-outline-primary w-100 mt-2">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No tickets issued yet.</p>
+                            <a asp-action="IssueTicket" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Issue Your First Ticket
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Statistics -->
+        <div class="row mt-4">
+            <div class="col-12 col-sm-6 col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Monthly Statistics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <h4>@Model.MonthlyTickets Tickets This Month</h4>
+                        <p class="text-muted">Keep up the good work!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-trophy me-2"></i>
+                            Performance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <h4>@Model.PaidPercentage.ToString("F1")% Paid Rate</h4>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-success"
+                                 style="width: @Model.PaidPercentage.ToString("F0")%">
+                                @Model.PaidPercentage.ToString("F0")%
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            @Model.PaidTickets out of @Model.TotalTickets tickets paid
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @functions {
+        string GetStatusBadgeClass(string status)
+        {
+            return status switch
+            {
+                "Paid" => "bg-success",
+                "Pending" => "bg-warning",
+                "Rejected" => "bg-danger",
+                "UnderProcess" => "bg-info text-white",
+
+                _ => "bg-secondary"
+            };
+        }
+    }
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".officer-clickable-row").forEach(row => {
+                row.addEventListener("click", () => {
+                    window.location.href = row.dataset.href;
+                });
+            });
+        });
+    </script>
+</div>

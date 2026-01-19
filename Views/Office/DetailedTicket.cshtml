@@ -1,0 +1,203 @@
+﻿@model TicketSystem.Models.Ticket
+@inject TicketSystem.Services.IQrCodeService QrService
+@{
+    ViewData["Title"] = $"Ticket #{Model.Ticket_Id}";
+    Layout = "_OfficeLayout";
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        
+        <link href="~/css/officelayoutstylesheet.css" rel="stylesheet" />
+
+    </head>
+    <body>
+        @{ var ticketUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Ticket/Open/{Model.Ticket_Id}"; var qrDataUri = QrService.GeneratePngDataUri(ticketUrl, 10); }
+
+        <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-ticket-alt me-2"></i>
+                        Ticket #@Model.Ticket_Id
+                        <span class="badge @GetStatusBadgeClass(Model.Status) ms-2">
+                            @Model.Status
+                        </span>
+                    </h2>
+                    <a asp-action="SearchTickets" asp-route-plateNumber="@Model.Plate_Number"
+                       class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> All ticketsfor P_N
+                    </a>
+                </div>
+
+                <div class="row">
+                    <!-- Left Column - Ticket Details -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i> Violation Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row">
+                                    <dt class="col-sm-4">Plate Number</dt>
+                                    <dd class="col-sm-8">@Model.Plate_Number</dd>
+
+                                    <dt class="col-sm-4">Violations</dt>
+                                    <dd class="col-sm-8">@Model.Violations</dd>
+
+                                    <dt class="col-sm-4">Location</dt>
+                                    <dd class="col-sm-8">@Model.Violation_Place</dd>
+
+                                    <dt class="col-sm-4">Issued On</dt>
+                                    <dd class="col-sm-8">@Model.Ticket_Time.ToString("f")</dd>
+
+                                    <dt class="col-sm-4">Due Date</dt>
+                                    <dd class="col-sm-8">@Model.Due_Date.ToShortDateString()</dd>
+
+                                    <dt class="col-sm-4">Issued By</dt>
+                                    <dd class="col-sm-8">@Model.IssuedBy</dd>
+                                </dl>
+                                <div class="mt-3 d-flex align-items-center gap-3">
+                                    <div>
+                                        <img src="@qrDataUri" alt="Ticket QR" style="width:160px;height:160px;border:1px solid #eaeaea;padding:6px;background:#fff;border-radius:6px;" />
+                                    </div>
+                                    <div>
+                                        <p class="mb-1 fw-bold">Scan to view (User portal)</p>
+                                        <small class="text-muted">Opens: @ticketUrl</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Driver Information -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-user me-2"></i> Driver Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row">
+                                    <dt class="col-sm-4">Full Name</dt>
+                                    <dd class="col-sm-8">@Model.Users?.Name</dd>
+
+                                    <dt class="col-sm-4">Email</dt>
+                                    <dd class="col-sm-8">@Model.Email</dd>
+
+                                    <dt class="col-sm-4">License Status</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="badge @GetLicenseBadgeClass(Model.Users?.License_Status)">
+                                            @Model.Users?.License_Status
+                                        </span>
+                                    </dd>
+
+                                    <dt class="col-sm-4">Address</dt>
+                                    <dd class="col-sm-8">@Model.Users?.Address</dd>
+
+                                    <dt class="col-sm-4">Blood Type</dt>
+                                    <dd class="col-sm-8">@Model.Users?.Blood_Type</dd>
+
+                                    <dt class="col-sm-4">Date of Birth</dt>
+                                    <dd class="col-sm-8">@Model.Users?.Birth_Date.ToShortDateString()</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Width Row - Additional Notes -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-edit me-2"></i> Officer Notes</h5>
+                            </div>
+                            <div class="card-body">
+                                @if (string.IsNullOrWhiteSpace(Model.Notes))
+                                {
+                                    <p class="text-muted">No additional notes recorded</p>
+                                }
+                                else
+                                {
+                                    <p>@Model.Notes</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons  for pending tickets -->
+                <div class="mt-4 d-flex justify-content-end">
+                    @if (Model.Status == "Pending")
+                    {
+                        <form asp-action="ProcessPayment" method="post">
+                            <input type="hidden" name="ticketId" value="@Model.Ticket_Id" />
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-lock me-1"></i> Ticket Payed Cash
+                            </button>
+                        </form>
+                    }
+                </div>
+
+                <!-- Action Buttons  for under process tickets -->
+                <div class="mt-4 d-flex justify-content-end">
+                    @if (Model.Status == "UnderProcess")
+                    {
+                        <!-- I need to add delete buttom her in case the tickets appeal go throught -->
+                        <form asp-action="DeleteTicket" method="post">
+                            <input type="hidden" name="Ticket_Id" value="@Model.Ticket_Id" />
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this ticket?');">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </form>
+
+                        <form asp-action="DenieRevoke_Ticket" method="post">
+                            <input type="hidden" name="ticketId" value="@Model.Ticket_Id" />
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-lock me-1"></i> Denie Revoke
+                            </button>
+                        </form>
+                    }
+                </div>
+        </div>
+    <h2 class="text-decoration-underline text-bg-danger"> there should be something that restrict the payed cash functon like a device that calculate money to the vault or there should be a way to follow who mark the ticket as paid like the user email or name </h2>
+    @functions
+    {
+        //      for tickets status 
+        string GetStatusBadgeClass(string status)
+        {
+            return status switch
+            {
+                "Paid" => "bg-success",
+                "Pending" => "bg-warning",
+                "Rejected" => "bg-danger",
+                "UnderProcess" => "bg-info text-white",
+
+                _ => "bg-secondary"
+            };
+        }
+        // for driver license 
+        string GetLicenseBadgeClass(string status)
+        {
+            return status switch
+            {
+                "Valid" => "bg-success",
+                "Expired" => "bg-warning",
+                "Suspended" => "bg-danger",
+                _ => "bg-secondary"
+            };
+        }
+    }
+
+
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+

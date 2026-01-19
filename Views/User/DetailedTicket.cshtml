@@ -1,0 +1,137 @@
+﻿@model TicketSystem.Models.Ticket
+@inject TicketSystem.Services.IQrCodeService QrService
+@{
+    ViewData["Title"] = "تفاصيل المخالفة";
+    Layout = "_UserLayout";
+}
+
+<div class="container mt-3" style="max-width: 800px;" dir="rtl">
+    <div class="card border-0 shadow-sm">
+        <!-- Header -->
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="mb-0">
+                    <i class="fas fa-ticket-alt text-primary ms-2"></i>
+                    تفاصيل المخالفة
+                </h5>
+                <span class="badge @GetStatusBadgeClass(Model.Status) ms-2">
+                    @Model.Status
+                </span>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+            @{ var ticketUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Ticket/Open/{Model.Ticket_Id}"; var qrDataUri = QrService.GeneratePngDataUri(ticketUrl, 10); }
+            <div class="row">
+                <div class="col-12">
+                    <h6 class="text-muted mb-3">معلومات المخالفة</h6>
+                    <div class="mb-3">
+                        <p class="fw-bold mb-1">نوع المخالفة</p>
+                        <p>@Model.Violations</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 col-12">
+                            <p class="fw-bold mb-1">رقم اللوحة</p>
+                            <p>@Model.Plate_Number</p>
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <p class="fw-bold mb-1">موقع المخالفة</p>
+                            <p>@Model.Violation_Place</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <h6 class="text-muted mb-3">تفاصيل المخالفة</h6>
+                    <div class="row">
+                        <div class="col-md-6 col-12">
+                            <p class="fw-bold mb-1">تاريخ الإصدار</p>
+                            <p>@Model.Ticket_Time.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <p class="fw-bold mb-1">تاريخ الاستحقاق</p>
+                            <p class="@(Model.Due_Date < DateTime.Now ? "text-danger" : "")">
+                                @Model.Due_Date.ToString("dd/MM/yyyy")
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="fw-bold mb-1">صادر بواسطة</p>
+                        <p>@Model.IssuedBy</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="fw-bold mb-1">ملاحظات</p>
+                        <p class="text-muted">
+                            @(string.IsNullOrEmpty(Model.Notes) ? "لا توجد ملاحظات إضافية" : Model.Notes)
+                        </p>
+                    </div>
+
+                    <div class="mt-4 d-flex align-items-center gap-3">
+                        <div>
+                            <img src="@qrDataUri" alt="QR" style="width:160px;height:160px;border:1px solid #eaeaea;padding:6px;background:#fff;border-radius:6px;" />
+                        </div>
+                        <div>
+                            <p class="mb-1 fw-bold">امسح لمشاهدة تفاصيل المخالفة</p>
+                            <small class="text-muted">سيفتح الرابط: @ticketUrl</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer bg-white border-top text-center">
+            <div class="d-flex flex-wrap gap-2 justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-primary flex-fill">
+                    <i class="fas fa-arrow-left ms-1"></i> العودة إلى المخالفات
+                </a>
+                <button class="btn btn-outline-primary btn-print flex-fill" onclick="window.print()">
+                    <i class="fas fa-print me-1"></i> طباعة التذكرة
+                </button>
+                @if (Model.Status != "Paid")
+                {
+                    <a asp-action="PayTicket" asp-route-id="@Model.Ticket_Id" class="btn btn-success flex-fill">
+                        <i class="fas fa-credit-card ms-1"></i> دفع المخالفة
+                    </a>
+                    @if (Model.Appealed != true)
+                    {
+                        <form asp-action="AskRevoke_Ticket" method="post" class="flex-fill">
+                            <input type="hidden" name="ticketId" value="@Model.Ticket_Id" />
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-file-alt me-1"></i> revoke
+                            </button>
+                        </form>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Mobile-first button fix */
+    @@media (max-width: 576px) {
+        .card-footer .btn
+
+    {
+        width: 100% !important;
+    }
+
+    }</style>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Paid" => "bg-success",
+            "Pending" => "bg-warning",
+            "UnderProcess" => "bg-info text-white",
+            _ => "bg-secondary"
+        };
+    }
+}

@@ -1,0 +1,42 @@
+﻿/* Ticket Results Page Styles */
+.hover-highlight:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transform: translateX(2px);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Make sure links don't have underline */
+.list-group-item-action {
+    text-decoration: none !important;
+}
+
+/* Card styling */
+.ticket-card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+/* Status badges */
+.badge-status {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .ticket-meta {
+        min-width: 100px !important;
+    }
+
+    .ticket-main-info {
+        margin-right: 0.5rem !important;
+    }
+}

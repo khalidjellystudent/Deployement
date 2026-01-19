@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Background -->
+    <rect width="600" height="400" fill="#F0F9FF"/>
+    
+    <!-- Road -->
+    <path d="M0 300H600V400H0V300Z" fill="#1E293B"/>
+    <path d="M0 330H600V340H0V330Z" fill="F8FAFC"/>
+    <path d="M0 365H600V375H0V365Z" fill="F8FAFC"/>
+    
+    <!-- Traffic Light -->
+    <rect x="100" y="200" width="40" height="100" rx="5" fill="#334155"/>
+    <circle cx="120" cy="230" r="15" fill="#EF4444"/>
+    <circle cx="120" cy="270" r="15" fill="#22C55E" opacity="0.3"/>
+    
+    <!-- Car -->
+    <g transform="translate(400, 260)">
+        <rect x="0" y="0" width="120" height="60" rx="10" fill="#3B82F6"/>
+        <rect x="10" y="10" width="100" height="30" rx="5" fill="#60A5FA"/>
+        <circle cx="30" cy="60" r="15" fill="#1E293B"/>
+        <circle cx="90" cy="60" r="15" fill="#1E293B"/>
+    </g>
+    
+    <!-- Document/Tablet -->
+    <g transform="translate(200, 150)">
+        <rect x="0" y="0" width="180" height="220" rx="10" fill="white" stroke="#E2E8F0" stroke-width="2"/>
+        <rect x="20" y="30" width="140" height="30" rx="4" fill="#F1F5F9"/>
+        <rect x="20" y="80" width="40" height="10" rx="2" fill="#E2E8F0"/>
+        <rect x="70" y="80" width="90" height="10" rx="2" fill="#E2E8F0"/>
+        <rect x="20" y="100" width="140" height="10" rx="2" fill="#E2E8F0"/>
+        <rect x="20" y="120" width="120" height="10" rx="2" fill="#E2E8F0"/>
+        <rect x="20" y="140" width="100" height="10" rx="2" fill="#3B82F6" opacity="0.8"/>
+        <rect x="20" y="160" width="140" height="10" rx="2" fill="#E2E8F0"/>
+        <rect x="20" y="180" width="80" height="10" rx="2" fill="#E2E8F0"/>
+    </g>
+    
+    <!-- Decorative Elements -->
+    <circle cx="550" cy="100" r="40" fill="#DBEAFE" opacity="0.6"/>
+    <circle cx="50" cy="80" r="25" fill="#DBEAFE" opacity="0.6"/>
+    <circle cx="500" cy="200" r="15" fill="#DBEAFE" opacity="0.6"/>
+    <circle cx="80" cy="150" r="10" fill="#DBEAFE" opacity="0.6"/>
+</svg>

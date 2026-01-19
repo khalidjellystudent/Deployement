@@ -1,0 +1,43 @@
+﻿@using TicketSystem.Services
+@model PlateResult
+@{
+    ViewData["Title"] = "LPR Result";
+}
+<h2>Recognition Result</h2>
+
+@if (Model?.Results == null || !Model.Results.Any())
+{
+    <p>No plates detected.</p>
+}
+else
+{
+    <ul>
+        @foreach (var r in Model.Results)
+        {
+            <li>
+                <strong>Plate:</strong> @r.Plate
+                <br />
+                <strong>Confidence:</strong> @Math.Round(r.Score * 100, 2) %
+                @if (r.Region?.Code != null)
+                {
+                    <br />
+                    <strong>Region:</strong>
+ 
+                    @r.Region.Code
+                }
+                @if (r.Candidates?.Count > 0)
+                {
+                    <br />
+        
+                    <strong>Candidates:</strong>
+                    <ul>
+                        @foreach (var c in r.Candidates)
+                        {
+                            <li>@c.Plate (@Math.Round(c.Score * 100, 2) %)</li>
+                        }
+                    </ul>
+                }
+            </li>
+        }
+    </ul>
+}

@@ -1,0 +1,81 @@
+﻿@model List<TicketSystem.Models.Ticket>
+@{
+    ViewData["Title"] = "Ticket Results";
+    Layout = "_OfficeLayout";
+
+}
+<head>
+    <link rel="stylesheet" href="~/css/ticketResults.css" />
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-ticket-alt me-2"></i>
+                Tickets for this Plate number : <span class="text-primary">@ViewBag.SearchQuery</span>
+            </h2>
+            <a asp-action="ScanPlate" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-search me-1"></i> New Search
+            </a>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> No tickets found
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @foreach (var ticket in Model)
+                        {
+                            <a asp-action="DetailedTicket" asp-route-id="@ticket.Ticket_Id"
+                               class="list-group-item list-group-item-action hover-highlight text-decoration-none">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <div class="me-3 flex-grow-1" style="min-width: 0;">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <h6 class="mb-0 text-truncate fw-bold text-dark">
+                                                @ticket.Violations
+                                            </h6>
+                                            <span class="badge @GetStatusBadgeClass(ticket.Status) ms-2">
+                                                @ticket.Status
+                                            </span>
+                                        </div>
+                                        <p class="mb-1 small text-muted text-truncate">
+                                            <i class="fas fa-user me-1"></i> @ticket.Users?.Name
+                                        </p>
+                                    </div>
+
+                                    <div class="text-end" style="min-width: 120px;">
+                                        <small class="text-muted d-block">
+                                            @ticket.Ticket_Time.ToString("MMM dd")
+                                        </small>
+                                        <span class="btn btn-sm btn-outline-primary mt-1">
+                                            <i class="fas fa-eye"></i> Details
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</body>
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Paid" => "bg-success",
+            "Pending" => "bg-warning",
+            "Rejected" => "bg-danger",
+            "UnderProcess" => "bg-info text-white",
+            _ => "bg-secondary"
+        };
+    }
+}

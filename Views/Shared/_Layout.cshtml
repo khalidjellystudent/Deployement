@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>@ViewData["Title"] - نظام إدارة المخالفات المرورية</title>
+
+        <!-- Fonts & icons -->
+        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="" crossorigin="anonymous">
+
+        <!-- Tailwind (set config before loading CDN) -->
+        <script>
+            tailwind = tailwind || {};
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Tajawal', 'sans-serif'],
+                        },
+                        colors: {
+                            primary: {
+                                50: '#f0f9ff',
+                                100: '#e0f2fe',
+                                200: '#bae6fd',
+                                300: '#7dd3fc',
+                                400: '#38bdf8',
+                                500: '#0ea5e9',
+                                600: '#0284c7',
+                                700: '#0369a1',
+                                800: '#075985',
+                                900: '#0c4a6e',
+                            },
+                        },
+                        boxShadow: {
+                            'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                            'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        },
+                    }
+                }
+            }
+        </script>
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        @await RenderSectionAsync("Styles", required: false)
+
+        <style>
+            html { scroll-behavior: smooth; }
+            .nav-link { position: relative; transition: all 0.3s ease; }
+            .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; right: 0; background-color: #0284c7; transition: width 0.3s ease; }
+            .nav-link:hover::after { width: 100%; right: auto; left: 0; }
+        </style>
+    </head>
+    <body class="bg-gray-50 font-sans text-gray-800">
+        <!-- Skip link for keyboard users -->
+        <a class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-white focus:text-blue-700 focus:px-3 focus:py-2 focus:rounded-lg" href="#main-content">تخطي إلى المحتوى</a>
+        <!-- Header -->
+        <header class="bg-white shadow-md sticky top-0 z-50">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <!-- Logo -->
+                    <a asp-controller="Home" asp-action="Index" class="flex items-center space-x-2 space-x-reverse group" aria-label="الصفحة الرئيسية">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                            <i class="fas fa-traffic-light text-white text-xl" aria-hidden="true"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">نظام المخالفات المرورية</span>
+                            <span class="text-xs text-gray-500">السلامة أولاً</span>
+                        </div>
+                    </a>
+
+                    <!-- Desktop Navigation -->
+                    <nav class="hidden lg:flex items-center space-x-8 space-x-reverse" aria-label="قائمة التنقل الرئيسية">
+                        <a asp-controller="Home" asp-action="Index" class="nav-link px-3 py-2 text-gray-700 hover:text-blue-700 font-medium">
+                            <i class="fas fa-home ml-1" aria-hidden="true"></i> الرئيسية
+                        </a>
+                        <a asp-controller="Home" asp-action="ContactUs" class="nav-link px-3 py-2 text-gray-700 hover:text-blue-700 font-medium">
+                            <i class="fas fa-envelope ml-1" aria-hidden="true"></i> اتصل بنا
+                        </a>
+                        <a asp-controller="Home" asp-action="Help" class="nav-link px-3 py-2 text-gray-700 hover:text-blue-700 font-medium">
+                            <i class="fas fa-question-circle ml-1" aria-hidden="true"></i> المساعدة
+                        </a>
+                        <a asp-controller="Home" asp-action="Login" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-2.5 rounded-lg hover:from-blue-700 hover:to-blue-900 transition-all font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            <i class="fas fa-sign-in-alt ml-1" aria-hidden="true"></i> تسجيل الدخول
+                        </a>
+                    </nav>
+
+                    <!-- Mobile menu button -->
+                    <div class="lg:hidden">
+                        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-700 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200" aria-expanded="false" aria-controls="mobile-menu">
+                            <i class="fas fa-bars text-xl" aria-hidden="true"></i>
+                            <span class="sr-only">القائمة الرئيسية</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile menu -->
+                <div id="mobile-menu" class="lg:hidden max-h-0 opacity-0 scale-y-95 pointer-events-none transition-all duration-500 ease-in-out py-0 border-t border-gray-100 bg-white fixed top-[64px] left-0 w-full z-50 overflow-y-auto" style="max-height:80vh;">
+                    <div class="flex flex-col space-y-0">
+                        <a asp-controller="Home" asp-action="Index" class="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-lg transition-colors">
+                            <i class="fas fa-home ml-2 w-5 text-center" aria-hidden="true"></i>
+                            <span>الرئيسية</span>
+                        </a>
+                        <a asp-controller="Home" asp-action="ContactUs" class="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-lg transition-colors">
+                            <i class="fas fa-envelope ml-2 w-5 text-center" aria-hidden="true"></i>
+                            <span>اتصل بنا</span>
+                        </a>
+                        <a asp-controller="Home" asp-action="Help" class="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-lg transition-colors">
+                            <i class="fas fa-question-circle ml-2 w-5 text-center" aria-hidden="true"></i>
+                            <span>المساعدة</span>
+                        </a>
+                        <a asp-controller="Home" asp-action="Login" class="mt-1 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 py-2 text-sm rounded-lg text-center font-medium shadow-md hover:shadow-lg transition-all">
+                            <i class="fas fa-sign-in-alt ml-1" aria-hidden="true"></i> تسجيل الدخول
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="min-h-[calc(100vh-200px)]">
+            @RenderBody()
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="flex flex-col items-center text-center">
+                        <h5 class="text-lg font-bold mb-4">روابط سريعة</h5>
+                        <ul class="space-y-2">
+                            <li><a asp-controller="Home" asp-action="Login" class="text-gray-300 hover:text-white">بوابة الدخول</a></li>
+                            <li><a asp-controller="Home" asp-action="TrafficLaws" class="text-gray-300 hover:text-white">قوانين المرور</a></li>
+                            <li><a asp-controller="Home" asp-action="Manual" class="text-gray-300 hover:text-white">دليل النظام</a></li>
+                        </ul>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <h5 class="text-lg font-bold mb-4">الدعم</h5>
+                        <ul class="space-y-2">
+                            <li><a asp-controller="Home" asp-action="Help" class="text-gray-300 hover:text-white">مركز المساعدة</a></li>
+                            <li><a asp-controller="Home" asp-action="ContactUs" class="text-gray-300 hover:text-white">اتصل بنا</a></li>
+                            <li><a asp-controller="Home" asp-action="TechnicalSupport" class="text-gray-300 hover:text-white">الدعم التقني</a></li>
+                            <li><a asp-controller="Home" asp-action="Status" class="text-gray-300 hover:text-white">حالة النظام</a></li>
+                        </ul>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <h5 class="text-lg font-bold mb-4">الطوارئ</h5>
+                        <div class="space-y-2">
+                            <p class="text-red-400 font-bold">🚨 الطوارئ: 911</p>
+                            <p class="text-gray-300">غير الطوارئ: (555) 123-4567</p>
+                            <p class="text-gray-300">خط المرور: (555) 123-ROAD</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                    <p class="text-gray-400">© @DateTime.Now.Year وزارة النقل والسلامة المرورية. جميع الحقوق محفوظة. | الموقع الحكومي الرسمي</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- JavaScript for mobile menu (animated toggle) -->
+        <script>
+            const toggleBtn = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            function openMenu() {
+                mobileMenu.style.transition = 'max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1)';
+                mobileMenu.classList.remove('max-h-0', 'opacity-0', 'scale-y-95', 'pointer-events-none');
+                mobileMenu.classList.add('max-h-[600px]', 'opacity-100', 'scale-y-100', 'pointer-events-auto');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+            }
+
+            function closeMenu() {
+                mobileMenu.style.transition = 'max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1)';
+                mobileMenu.classList.add('max-h-0', 'opacity-0', 'scale-y-95', 'pointer-events-none');
+                mobileMenu.classList.remove('max-h-[600px]', 'opacity-100', 'scale-y-100', 'pointer-events-auto');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    const isOpen = toggleBtn.getAttribute('aria-expanded') === 'true';
+                    if (isOpen) closeMenu(); else openMenu();
+                });
+            }
+
+            // Optional: close on Esc
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeMenu();
+            });
+        </script>
+
+        @await RenderSectionAsync("Scripts", required: false)
+
+        <!-- (kept) Cloudflare script -->
+        <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96b7291690805f26',t:'MTc1NDU3Mzc2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    </body>
+</html>

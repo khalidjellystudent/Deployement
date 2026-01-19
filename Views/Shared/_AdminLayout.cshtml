@@ -1,0 +1,206 @@
+@* Views/Shared/AdminLayout.cshtml *@
+@using TicketSystem.Data
+@inject AppDbContext _db
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] – لوحة تحكم المسؤول</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar {
+            transition: all 0.3s;
+        }
+
+        .nav-link {
+            transition: all 0.2s;
+        }
+
+            .nav-link:hover {
+                background-color: rgba(59, 130, 246, 0.1);
+            }
+
+            .nav-link.active {
+                background-color: #3b82f6;
+                color: white;
+            }
+
+        /* Mobile: Hide sidebar by default */
+        @@media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 10;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden relative">
+        <!-- Mobile Overlay -->
+        <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar (off-canvas on small screens, visible on md+) -->
+    <div id="sidebar" class="sidebar bg-white w-64 h-full fixed shadow-lg z-20 right-0 transform transition-transform duration-300 md:translate-x-0 translate-x-full">
+            <!-- Logo -->
+            <div class="p-4 border-b border-gray-200">
+                <h1 class="text-xl font-bold text-blue-600">النظام الإداري</h1>
+            </div>
+
+            <!-- User Profile -->
+            <div class="p-4 border-b border-gray-200 flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <i class="fas fa-user text-blue-600"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-800">@User.Identity?.Name</p>
+                    <span class="text-xs text-gray-500">مدير النظام</span>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="p-2">
+                <ul class="space-y-1">
+                    <li>
+                        <a asp-controller="Admin" asp-action="Index" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:text-blue-600">
+                            <i class="fas fa-tachometer-alt ml-3"></i>
+                            <span>لوحة التحكم</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Admin" asp-action="UserList" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:text-blue-600">
+                            <i class="fas fa-users ml-3"></i>
+                            <span>إدارة المستخدمين</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Admin" asp-action="FeedbackList" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:text-blue-600">
+                            <i class="fas fa-comment-alt ml-3"></i>
+                            <span>الرسائل والملاحظات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="Admin" asp-action="ViolationList" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:text-blue-600">
+                            <i class="fas fa-exclamation-triangle ml-3"></i>
+                            <span>إدارة المخالفات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:text-blue-600">
+                            <i class="fas fa-chart-bar ml-3"></i>
+                            <span>التقارير والإحصائيات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link flex items-center p-3 rounded-lg text-gray-700 hover:text-blue-600">
+                            <i class="fas fa-cog ml-3"></i>
+                            <span>الإعدادات</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="main-content flex-1 flex flex-col overflow-hidden mr-0 md:mr-64 transition-all duration-300 ease-in-out">
+            <!-- Top Bar -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between p-4">
+                    <div class="flex items-center">
+                        <!-- Mobile Menu Button -->
+                        <button id="menuBtn" onclick="toggleSidebar()" class="md:hidden ml-4 text-gray-600 hover:text-blue-600 focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="text-lg font-semibold text-gray-800 mr-4">@ViewData["Title"]</h2>
+                    </div>
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div class="relative">
+                                @{
+                                    var unreadCount = 0;
+                                    try {
+                                        unreadCount = _db.Feedbacks.Count(f => !f.IsRead);
+                                    } catch {
+                                        // If DB not available in this view render fallback 0
+                                        unreadCount = 0;
+                                    }
+                                }
+                                <a asp-controller="Admin" asp-action="FeedbackList" class="text-gray-500 hover:text-gray-700 relative inline-flex items-center" aria-label="الرسائل والملاحظات">
+                                    <i class="fas fa-bell text-xl"></i>
+                                    @if (unreadCount > 0)
+                                    {
+                                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">@unreadCount</span>
+                                    }
+                                </a>
+                            </div>
+                        <form asp-controller="Home" asp-action="Logout" method="post" class="ml-4">
+                            <button type="submit" class="flex items-center text-gray-600 hover:text-red-600 transition-colors">
+                                <i class="fas fa-sign-out-alt ml-2"></i>
+                                <span>تسجيل الخروج</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                @RenderBody()
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-white border-t py-4 px-6">
+                <div class="flex flex-col md:flex-row justify-between items-center text-center md:text-right">
+                    <div class="text-sm text-gray-500 mb-2 md:mb-0">
+                        نظام المخالفات المرورية © @DateTime.Now.Year - جميع الحقوق محفوظة
+                    </div>
+                    <div class="flex space-x-4 space-x-reverse text-sm">
+                        <a href="#" class="text-gray-500 hover:text-blue-600">الشروط والأحكام</a>
+                        <a href="#" class="text-gray-500 hover:text-blue-600">سياسة الخصوصية</a>
+                        <a href="#" class="text-gray-500 hover:text-blue-600">الدعم الفني</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Close sidebar when clicking on a link on mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 768) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

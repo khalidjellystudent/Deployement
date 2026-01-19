@@ -1,0 +1,67 @@
+﻿@{
+    Layout = "_OfficeLayout";
+
+}
+<head>
+    <link href="~/css/ticketresults.css" rel="stylesheet" />
+</head>
+<body>
+     <div class="container">
+            <div class="dashboard">
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-barcode"></i>
+                        <h2>مسح المخالفة</h2>
+                    </div>
+                    <p>امسح مخالفات المرور باستخدام الباركود أو رمز الاستجابة السريعة.</p>
+                    <a asp-controller="Office" asp-action="ScanTicketQr" class="btn">امسح الآن</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-file-alt"></i>
+                        <h2>التقارير</h2>
+                    </div>
+                    <p>أنشئ واعرض التقارير حول المخالفات والمدفوعات والمزيد.</p>
+                    <a asp-controller="Office" asp-action="Reports" class="btn">عرض التقارير</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-user-plus"></i>
+                        <h2>تسجيل المستخدمين</h2>
+                    </div>
+                    <p>أضف موظفين جدد وادخل حسابات المستخدمين.</p>
+                    <a asp-controller="Office" asp-action="Register" class="btn">إدارة المستخدمين</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-search"></i>
+                        <h2>بحث المخالفات</h2>
+                    </div>
+                    <p>ابحث عن مخالفات محددة بالرقم أو لوحة السيارة أو السائق.</p>
+                <a asp-controller="Office" asp-action="ScanPlate" class="btn">بحث</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar"></i>
+                        <h2>الإحصائيات</h2>
+                    </div>
+                    <p>اعرض الإحصائيات والتحليلات حول المخالفات والمدفوعات.</p>
+                    <a asp-controller="Reports" asp-action="Statistics" class="btn">عرض الإحصائيات</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <h2>معالجة المدفوعات</h2>
+                    </div>
+                    <p>معالجة مدفوعات مخالفات المرور.</p>
+                    <a asp-controller="Office" asp-action="Process" class="btn">معالجة الدفع</a>
+                </div>
+            </div>
+        </div>
+</body>

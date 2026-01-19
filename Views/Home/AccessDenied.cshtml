@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var msg = ViewBag.AccessDeniedMessage as string;
+}
+
+<div class="container" style="max-width: 720px; margin-top: 2rem;" dir="ltr">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="text-danger mb-3">Access denied</h3>
+            <p class="mb-2">@(!string.IsNullOrWhiteSpace(msg) ? msg : "You don't have permission to access this page.")</p>
+            <p class="text-muted mb-4" style="font-size: 0.95rem;">
+                If you believe this is a mistake, please contact support.
+            </p>
+
+            <div class="d-flex gap-2">
+                <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Home</a>
+                <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="Login">Login</a>
+            </div>
+        </div>
+    </div>
+</div>

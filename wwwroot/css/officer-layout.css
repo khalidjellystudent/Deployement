@@ -1,0 +1,78 @@
+/* Officer layout enhancements (scoped, RTL-friendly)
+:root {
+  --officer-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+/* Content wrapper so Officer pages feel consistent */
+.officer-content-wrapper {
+  max-width: 1200px;
+  margin: 18px auto 36px;
+  padding: 0 16px;
+}
+
+.officer-skip {
+  position: absolute;
+  right: 16px;
+  top: 10px;
+  background: #fff;
+  color: #1d4ed8;
+  padding: 8px 12px;
+  border-radius: 10px;
+  box-shadow: var(--officer-shadow);
+  transform: translateY(-150%);
+  transition: transform 180ms ease;
+  z-index: 2000;
+}
+.officer-skip:focus { transform: translateY(0); }
+
+/* Improve header text readability */
+.officer-brand-link { color: #fff !important; }
+.officer-brand-link:hover { color: #fff !important; text-decoration: none; }
+
+/* Clickable table rows */
+.officer-clickable-row { cursor: pointer; }
+.officer-clickable-row:hover { background-color: rgba(37, 99, 235, 0.06); }
+
+/* Mobile nav backdrop */
+.officer-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+  z-index: 1100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.officer-nav-backdrop.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Nicer active state (works for desktop + mobile) */
+#officerNav a.active {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.22);
+}
+
+@media (max-width: 992px) {
+  /* When nav is open (your JS toggles .open), make it look like a modern sheet */
+  #officerNav {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+  }
+
+  #officerNav a {
+    font-weight: 600;
+  }
+
+  #officerNav a.active {
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+  }
+}
+
+@media print {
+  header, footer { display: none !important; }
+  .officer-content-wrapper { max-width: none; margin: 0; padding: 0; }
+}

@@ -1,0 +1,43 @@
+﻿@model TicketSystem.Models.Ticket
+@{
+    ViewData["Title"] = "Pay Ticket";
+    Layout = "_UserLayout";
+}
+
+<div class="container mt-3" style="max-width: 600px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Pay Ticket</h5>
+        </div>
+        <div class="card-body">
+            <h6>Ticket #@Model.Ticket_Id</h6>
+            <p class="mb-1">Amount Due: <strong>$@Model.FineAmount</strong></p>
+            <hr />
+
+            <!-- Payment Form (Example: Mock Payment) -->
+            <form asp-action="ProcessPayment" method="post">
+                <input type="hidden" name="ticketId" value="@Model.Ticket_Id" />
+
+                <div class="mb-3">
+                    <label class="form-label">Card Number</label>
+                    <input type="text" class="form-control" placeholder="1234 5678 9012 3456" required />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="text" class="form-control" placeholder="MM/YY" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">CVV</label>
+                        <input type="text" class="form-control" placeholder="123" required />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-lock me-1"></i> Pay Now
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,327 @@
+@{
+    ViewData["Title"] = "لوحة التحكم الرئيسية";
+    Layout = "_AdminLayout";
+}
+
+@section Styles {
+    <style>
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+}
+
+<!-- Welcome Section -->
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">مرحباً بك في لوحة التحكم</h1>
+    <p class="text-gray-600">نظرة عامة على إحصائيات النظام والأنشطة الحديثة</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <!-- Total Users Card -->
+    <div class="stat-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm mb-1">إجمالي المستخدمين</p>
+                <h3 class="text-3xl font-bold">@ViewBag.TotalUsers</h3>
+                <p class="text-blue-100 text-xs mt-2">
+                    <i class="fas fa-user-shield ml-1"></i> @ViewBag.TotalOfficers ضابط
+                </p>
+            </div>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="fas fa-users text-3xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Tickets Card -->
+    <div class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-purple-100 text-sm mb-1">إجمالي المخالفات</p>
+                <h3 class="text-3xl font-bold">@ViewBag.TotalTickets</h3>
+                <p class="text-purple-100 text-xs mt-2">
+                    <i class="fas fa-clock ml-1"></i> @ViewBag.RecentTickets خلال 7 أيام
+                </p>
+            </div>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="fas fa-ticket-alt text-3xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Fines Card -->
+    <div class="stat-card bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm mb-1">إجمالي الغرامات</p>
+                <h3 class="text-3xl font-bold">@ViewBag.TotalFines.ToString("N0")</h3>
+                <p class="text-green-100 text-xs mt-2">
+                    <i class="fas fa-check-circle ml-1"></i> @ViewBag.PaidTickets مدفوعة
+                </p>
+            </div>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="fas fa-dollar-sign text-3xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Tickets Card -->
+    <div class="stat-card bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-orange-100 text-sm mb-1">المخالفات المعلقة</p>
+                <h3 class="text-3xl font-bold">@ViewBag.PendingTickets</h3>
+                <p class="text-orange-100 text-xs mt-2">
+                    <i class="fas fa-exclamation-triangle ml-1"></i> @ViewBag.AppealedTickets اعتراضات
+                </p>
+            </div>
+            <div class="bg-white bg-opacity-20 rounded-full p-4">
+                <i class="fas fa-hourglass-half text-3xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts and Tables Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Monthly Tickets Chart -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-chart-line ml-2 text-blue-600"></i>
+            اتجاه المخالفات الشهرية
+        </h3>
+        <div class="chart-container">
+            <canvas id="monthlyTicketsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Violations Chart -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-chart-pie ml-2 text-purple-600"></i>
+            أكثر المخالفات شيوعاً
+        </h3>
+        <div class="chart-container">
+            <canvas id="topViolationsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Tables Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Top Officers Table -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-trophy ml-2 text-yellow-500"></i>
+            أفضل الضباط أداءً
+        </h3>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-right py-3 px-4 text-gray-600 font-semibold text-sm">الضابط</th>
+                        <th class="text-center py-3 px-4 text-gray-600 font-semibold text-sm">المخالفات</th>
+                        <th class="text-center py-3 px-4 text-gray-600 font-semibold text-sm">الغرامات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.TopOfficers != null && ViewBag.TopOfficers.Count > 0)
+                    {
+                        @foreach (var officer in ViewBag.TopOfficers)
+                        {
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4 text-sm text-gray-800">
+                                    <i class="fas fa-user-shield text-blue-600 ml-2"></i>
+                                    @officer.OfficerEmail
+                                </td>
+                                <td class="text-center py-3 px-4">
+                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                        @officer.TicketCount
+                                    </span>
+                                </td>
+                                <td class="text-center py-3 px-4 text-sm text-gray-700 font-semibold">
+                                    @officer.TotalFines.ToString("N0")
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center py-8 text-gray-500">
+                                <i class="fas fa-inbox text-4xl mb-2"></i>
+                                <p>لا توجد بيانات متاحة</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Feedbacks -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-comments ml-2 text-green-600"></i>
+                الرسائل الحديثة
+            </h3>
+            @if (ViewBag.UnreadFeedbacks > 0)
+            {
+                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    @ViewBag.UnreadFeedbacks غير مقروءة
+                </span>
+            }
+        </div>
+        <div class="space-y-3">
+            @if (ViewBag.RecentFeedbacks != null && ViewBag.RecentFeedbacks.Count > 0)
+            {
+                @foreach (var feedback in ViewBag.RecentFeedbacks)
+                {
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow @(!feedback.IsRead ? "bg-blue-50 border-blue-200" : "")">
+                        <div class="flex items-start justify-between mb-2">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm ml-2">
+                                    @feedback.Name.Substring(0, 1).ToUpper()
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800 text-sm">@feedback.Name</p>
+                                    <p class="text-xs text-gray-500">@feedback.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                                </div>
+                            </div>
+                            @if (!feedback.IsRead)
+                            {
+                                <span class="bg-blue-500 text-white px-2 py-1 rounded text-xs">جديد</span>
+                            }
+                        </div>
+                        <p class="text-sm text-gray-700 line-clamp-2">@feedback.Message</p>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-inbox text-4xl mb-2"></i>
+                    <p>لا توجد رسائل</p>
+                </div>
+            }
+        </div>
+        <a asp-controller="Admin" asp-action="FeedbackList" class="block text-center mt-4 text-blue-600 hover:text-blue-800 font-semibold text-sm">
+            عرض جميع الرسائل <i class="fas fa-arrow-left mr-2"></i>
+        </a>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="bg-white rounded-xl shadow-lg p-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-bolt ml-2 text-yellow-500"></i>
+        إجراءات سريعة
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a asp-controller="Admin" asp-action="UserList" class="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group">
+            <i class="fas fa-users text-3xl text-gray-400 group-hover:text-blue-600 mb-2"></i>
+            <span class="text-sm font-semibold text-gray-700 group-hover:text-blue-600">إدارة المستخدمين</span>
+        </a>
+        <a asp-controller="Admin" asp-action="OfficerList" class="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all group">
+            <i class="fas fa-user-shield text-3xl text-gray-400 group-hover:text-purple-600 mb-2"></i>
+            <span class="text-sm font-semibold text-gray-700 group-hover:text-purple-600">الضباط</span>
+        </a>
+        <a asp-controller="Admin" asp-action="FeedbackList" class="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all group">
+            <i class="fas fa-comments text-3xl text-gray-400 group-hover:text-green-600 mb-2"></i>
+            <span class="text-sm font-semibold text-gray-700 group-hover:text-green-600">الرسائل</span>
+        </a>
+        <a asp-controller="Admin" asp-action="UserList" class="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all group">
+            <i class="fas fa-key text-3xl text-gray-400 group-hover:text-orange-600 mb-2"></i>
+            <span class="text-sm font-semibold text-gray-700 group-hover:text-orange-600">إعادة تعيين كلمة المرور</span>
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Monthly Tickets Chart
+        const monthlyCtx = document.getElementById('monthlyTicketsChart').getContext('2d');
+        const monthlyData = @Html.Raw(Json.Serialize(ViewBag.MonthlyTickets ?? new List<object>()));
+        
+        new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.map(d => d.month),
+                datasets: [{
+                    label: 'عدد المخالفات',
+                    data: monthlyData.map(d => d.count),
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        // Top Violations Chart
+        const violationsCtx = document.getElementById('topViolationsChart').getContext('2d');
+        const violationsData = @Html.Raw(Json.Serialize(ViewBag.TopViolations ?? new List<object>()));
+        
+        const colors = [
+            'rgba(239, 68, 68, 0.8)',
+            'rgba(249, 115, 22, 0.8)',
+            'rgba(234, 179, 8, 0.8)',
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(59, 130, 246, 0.8)'
+        ];
+
+        new Chart(violationsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: violationsData.map(d => d.violation),
+                datasets: [{
+                    data: violationsData.map(d => d.count),
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'right'
+                    }
+                }
+            }
+        });
+    </script>
+}

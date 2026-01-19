@@ -1,0 +1,832 @@
+
+@{
+    ViewData["Title"] = "الرئيسية | نظام المخالفات المرورية";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Styles {
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0c4a6e 100%);
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .manual-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .phone-frame {
+            box-shadow: 0 8px 32px rgba(30,64,175,0.10), 0 1.5px 6px rgba(30,64,175,0.08);
+        }
+
+        .phone-screen {
+            box-shadow: 0 2px 8px rgba(30,64,175,0.07);
+        }
+
+        .caption {
+            font-size: 0.95rem;
+            letter-spacing: 0.01em;
+        }
+
+        .step-text {
+            box-shadow: 0 4px 24px rgba(30,64,175,0.07);
+        }
+
+        .nav-buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @@media (max-width: 768px) {
+            .manual-container {
+                flex-direction: column !important;
+                gap: 2rem !important;
+            }
+
+            .hero-gradient {
+                padding: 4rem 0 !important;
+            }
+
+            section {
+                padding: 3rem 0 !important;
+            }
+
+            .stat-card, .feature-card {
+                margin-bottom: 1rem;
+            }
+        }
+
+        @@keyframes blob {
+            0% {
+                transform: translate(0px, 0px) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+
+            100% {
+                transform: translate(0px, 0px) scale(1);
+            }
+        }
+
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+
+        /* Smooth scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Fade-in animations */
+        [data-animate] {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        [data-animate].animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile optimizations */
+        @@media (max-width: 640px) {
+            .hero-gradient h1 {
+                font-size: 2rem !important;
+                line-height: 1.2 !important;
+            }
+
+            .hero-gradient p {
+                font-size: 1rem !important;
+            }
+
+            .phone-frame {
+                width: 240px !important;
+                height: 400px !important;
+            }
+
+            .step-text {
+                font-size: 1rem !important;
+                padding: 1.5rem !important;
+            }
+        }
+
+        /* Coming-soon badges and overlays for Mobile App Banner */
+        .coming-soon-ribbon {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 50;
+            transform: rotate(-12deg);
+            background: linear-gradient(90deg,#f97316,#fb7185);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            border-radius: 0.5rem;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        .app-coming-badge {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 999px;
+            pointer-events: none;
+        }
+
+        .phone-coming-overlay {
+            background: rgba(0,0,0,0.45);
+            color: #fff;
+            border-radius: 1rem;
+            backdrop-filter: blur(2px);
+        }
+
+        .phone-coming-text {
+            font-size: 1.6rem;
+            font-weight: 800;
+            padding: 0.6rem 1.2rem;
+            border-radius: 999px;
+            background: linear-gradient(90deg,#e11d48,#ef4444);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+    </style>
+}
+<body>
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden hero-gradient text-white py-24 md:py-40">
+        <!-- Decorative elements -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-96 h-96 bg-white bg-opacity-5 rounded-full"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-white bg-opacity-5 rounded-full"></div>
+            <div class="absolute top-1/2 -right-40 w-80 h-80 bg-white bg-opacity-5 rounded-full"></div>
+        </div>
+    
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10" data-animate="fade-right">
+                    <!-- Badge -->
+                    <div class="inline-flex items-center bg-white bg-opacity-10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                        <span class="relative flex h-3 w-3 mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                        <span class="text-blue-100 text-sm font-medium">نظام آمن وسهل الاستخدام</span>
+                    </div>
+                
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-8 drop-shadow-lg">
+                        نظام متكامل <span class="text-blue-200">لإدارة المخالفات المرورية</span>
+                    </h1>
+                    <p class="text-xl text-blue-100 mb-10 leading-relaxed max-w-xl">
+                        منصة إلكترونية متطورة تمكنك من إدارة المخالفات المرورية ودفع الغرامات إلكترونياً بكل سهولة وأمان. نسعى لتحقيق أعلى معايير السلامة المرورية.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 sm:space-x-reverse">
+                        <a asp-controller="Home" asp-action="Login" class="group relative overflow-hidden bg-gradient-to-r from-blue-400 to-blue-700 text-white hover:from-blue-600 hover:to-blue-900 px-10 py-5 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 text-center focus:outline-none focus:ring-4 focus:ring-blue-300">
+                            <span class="relative z-10 flex items-center justify-center">
+                                <i class="fas fa-sign-in-alt ml-2 transition-transform group-hover:translate-x-1"></i> 
+                                <span>تسجيل الدخول</span>
+                            </span>
+                            
+                            <span class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                        </a>
+                        <a href="#Manual" class="group relative overflow-hidden border-2 border-white text-white hover:bg-white hover:bg-opacity-10 px-10 py-5 rounded-xl font-bold text-lg transition-all duration-300 text-center focus:outline-none focus:ring-4 focus:ring-blue-300">
+                            <span class="relative z-10 flex items-center justify-center">
+                                <i class="fas fa-info-circle ml-2 transition-transform group-hover:translate-x-1"></i> 
+                                <span>دليل المستخدم</span>
+                            </span>
+                            <span class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                        </a>
+                    </div>
+                
+                    <!-- Trust indicators -->
+                    <div class="mt-10 pt-6 border-t border-white border-opacity-10">
+                        <p class="text-blue-100 text-sm mb-4">موثوق به من قبل الآلاف من العملاء</p>
+                        <div class="flex items-center space-x-4 space-x-reverse">
+                            <div class="flex -space-x-2">
+                                <img class="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/women/12.jpg" alt="User">
+                                <img class="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                                <img class="inline-block h-10 w-10 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/women/45.jpg" alt="User">
+                                <div class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white bg-opacity-20 text-white text-xs font-semibold ring-2 ring-white">
+                                    +2K
+                                </div>
+                            </div>
+                            <div class="text-blue-100">
+                                <div class="flex items-center">
+                                    <span>4.9</span>
+                                    <div class="flex ml-1">
+                                        <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <span class="text-xs mr-1">(1,234 تقييم)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="md:w-1/2 relative" data-animate="fade-left">
+                    <div class="relative
+                        before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:max-w-2xl before:aspect-square before:rounded-full before:bg-white before:opacity-5
+                        after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-[120%] after:max-w-2xl after:aspect-square after:rounded-full after:border-2 after:border-white after:opacity-5">
+                        <img src="/images/traffic-hero.svg" alt="إدارة المرور" class="relative z-5 w-full max-w-lg mx-auto transform transition-transform duration-1000 hover:scale-105">
+                    </div>
+                
+                    <!-- Floating elements -->
+                    <div class="absolute -bottom-10 -left-10 bg-white bg-opacity-10 backdrop-blur-sm p-4 rounded-2xl shadow-lg transform rotate-6 transition-transform duration-300 hover:rotate-0">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-2 mx-auto z-10">
+                            <i class="fas fa-bolt text-blue-600 text-xl"></i>
+                        </div>
+                        <p class="text-xs text-center text-white font-medium">دفع فوري</p>
+                    </div>
+                
+                    <div class="absolute -top-10 right-10 bg-white bg-opacity-10 backdrop-blur-sm p-4 rounded-2xl shadow-lg transform -rotate-6 transition-transform duration-300 hover:rotate-0 ">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-2 mx-auto ">
+                            <i class="fas fa-shield-alt text-green-600 text-xl z-10"></i>
+                        </div>
+                        <p class="text-xs text-center text-white font-medium">آمن 100%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+       
+    </section>
+
+    <!-- Features Section -->
+    <section id="services" class="py-24 bg-gray-50 relative overflow-hidden">
+        <!-- Decorative elements -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        </div>
+    
+        <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center mb-20" data-animate="fade-up">
+                <div class="inline-block bg-gradient-to-r from-blue-600 to-blue-800 text-white text-sm font-medium px-4 py-1.5 rounded-full mb-4">
+                    خدماتنا المميزة
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">حلول متكاملة لإدارة المخالفات</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">نقدم مجموعة متكاملة من الخدمات المصممة لتبسيط إدارة المخالفات المرورية</p>
+                <div class="w-20 h-1 bg-gradient-to-r from-blue-600 to-blue-800 mx-auto mt-4 rounded-full"></div>
+            </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Feature 1 -->
+                <div class="feature-card group bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 relative overflow-hidden" data-animate="fade-up" data-animate-delay="100">
+                    <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-600 to-blue-800"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors duration-300">
+                            <i class="fas fa-ticket-alt text-2xl text-blue-600 group-hover:scale-110 transition-transform duration-300"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-900 group-hover:text-blue-700 transition-colors duration-300">الاستعلام عن المخالفات</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">استعلم عن مخالفاتك المرورية واطلع على تفاصيلها وطرق السداد المتاحة بكل سهولة ويسر من خلال منصتنا الآمنة.</p>
+                        <a href="#" class="inline-flex items-center text-blue-600 font-medium group-hover:text-blue-800 transition-colors duration-300">
+                            <span>تعرف أكثر</span>
+                            <i class="fas fa-arrow-right mr-2 transform group-hover:translate-x-1 transition-transform duration-300"></i>
+                        </a>
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-blue-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+            
+                <!-- Feature 2 -->
+                <div class="feature-card group bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 relative overflow-hidden" data-animate="fade-up" data-animate-delay="200">
+                    <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-green-500 to-green-700"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-green-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-100 transition-colors duration-300">
+                            <i class="fas fa-credit-card text-2xl text-green-600 group-hover:scale-110 transition-transform duration-300"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-900 group-hover:text-green-700 transition-colors duration-300">سداد إلكتروني آمن</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">ادفع غراماتك المرورية إلكترونياً بكل أمان وسهولة عبر بوابات دفع متعددة معتمدة وموثوقة.</p>
+                        <a href="#" class="inline-flex items-center text-green-600 font-medium group-hover:text-green-800 transition-colors duration-300">
+                            <span>تعرف أكثر</span>
+                            <i class="fas fa-arrow-right mr-2 transform group-hover:translate-x-1 transition-transform duration-300"></i>
+                        </a>
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-green-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+            
+                <!-- Feature 3 -->
+                <div class="feature-card group bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 relative overflow-hidden" data-animate="fade-up" data-animate-delay="300">
+                    <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-700"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 bg-purple-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-purple-100 transition-colors duration-300">
+                            <i class="fas fa-headset text-2xl text-purple-600 group-hover:scale-110 transition-transform duration-300"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-gray-900 group-hover:text-purple-700 transition-colors duration-300">دعم فني متكامل</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed">فريق دعم فني على أعلى مستوى لمساعدتك في كافة استفساراتك وتقديم الدعم الفني اللازم على مدار الساعة.</p>
+                        <a href="#" class="inline-flex items-center text-purple-600 font-medium group-hover:text-purple-800 transition-colors duration-300">
+                            <span>تواصل معنا</span>
+                            <i class="fas fa-arrow-right mr-2 transform group-hover:translate-x-1 transition-transform duration-300"></i>
+                        </a>
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-purple-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="py-24 bg-gradient-to-b from-blue-50 to-white relative overflow-hidden">
+        <!-- Decorative elements -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-5">
+            <div class="absolute top-1/4 -right-20 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+            <div class="absolute bottom-1/3 -left-20 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
+        </div>
+    
+        <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center mb-20" data-animate="fade-up">
+                <div class="inline-block bg-gradient-to-r from-blue-600 to-blue-800 text-white text-sm font-medium px-4 py-1.5 rounded-full mb-4">
+                    إحصائيات حية
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">أرقام تتحدث عن نفسها</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">نفخر بمساهمتنا في تعزيز السلامة المرورية من خلال أرقام حقيقية</p>
+                <div class="w-20 h-1 bg-gradient-to-r from-blue-600 to-blue-800 mx-auto mt-4 rounded-full"></div>
+            </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                <!-- Stat 1 -->
+                <div class="stat-card group bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 relative overflow-hidden transition-all duration-300 transform hover:-translate-y-2" data-animate="fade-up" data-animate-delay="100">
+                    <div class="relative z-10 text-center">
+                        <div class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:bg-blue-100 transition-colors duration-300">
+                            <i class="fas fa-check-circle text-3xl text-blue-600"></i>
+                        </div>
+                        <div class="text-4xl md:text-5xl font-bold text-blue-600 mb-2 font-sans">
+                            <span class="counter" data-target="50000" data-prefix="">0</span>+
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">مخالفة مسددة</h3>
+                        <p class="text-gray-500">تم سدادها بنجاح</p>
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-blue-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+            
+                <!-- Stat 2 -->
+                <div class="stat-card group bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 relative overflow-hidden transition-all duration-300 transform hover:-translate-y-2" data-animate="fade-up" data-animate-delay="200">
+                    <div class="relative z-10 text-center">
+                        <div class="w-20 h-20 bg-green-50 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:bg-green-100 transition-colors duration-300">
+                            <i class="fas fa-smile text-3xl text-green-600"></i>
+                        </div>
+                        <div class="text-4xl md:text-5xl font-bold text-green-600 mb-2 font-sans">
+                            <span class="counter" data-target="98" data-prefix="">0</span>%
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">رضا العملاء</h3>
+                        <p class="text-gray-500">معدل رضا مرتفع</p>
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-green-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+            
+                <!-- Stat 3 -->
+                <div class="stat-card group bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 relative overflow-hidden transition-all duration-300 transform hover:-translate-y-2" data-animate="fade-up" data-animate-delay="300">
+                    <div class="relative z-10 text-center">
+                        <div class="w-20 h-20 bg-purple-50 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:bg-purple-100 transition-colors duration-300">
+                            <i class="fas fa-headset text-3xl text-purple-600"></i>
+                        </div>
+                        <div class="text-4xl md:text-5xl font-bold text-purple-600 mb-2 font-sans">
+                            <span class="counter" data-target="24" data-prefix="">0</span>/7
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">دعم فني</h3>
+                        <p class="text-gray-500">متوفر على مدار الساعة</p>
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-purple-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+            
+                <!-- Stat 4 -->
+                <div class="stat-card group bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl border border-gray-100 relative overflow-hidden transition-all duration-300 transform hover:-translate-y-2" data-animate="fade-up" data-animate-delay="400">
+                    <div class="relative z-10 text-center">
+                        <div class="w-20 h-20 bg-yellow-50 rounded-2xl flex items-center justify-center mb-6 mx-auto group-hover:bg-yellow-100 transition-colors duration-300">
+                            <i class="fas fa-shield-alt text-3xl text-yellow-600"></i>
+                        </div>
+                        <div class="text-4xl md:text-5xl font-bold text-yellow-600 mb-2 font-sans">
+                            <span class="counter" data-target="99.9" data-decimals="1" data-prefix="">0</span>%
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">توفر النظام</h3>
+                        <p class="text-gray-500">أعلى معدلات التشغيل</p>
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-yellow-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative py-28 bg-gradient-to-r from-blue-900 to-blue-700 text-white overflow-hidden">
+        <!-- Decorative elements -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-white rounded-full opacity-5"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-white rounded-full opacity-5"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-64 bg-gradient-to-r from-blue-600 to-blue-800 rounded-full filter blur-3xl opacity-20"></div>
+        </div>
+    
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto text-center" data-animate="fade-up">
+                <div class="inline-block bg-white bg-opacity-20 backdrop-blur-sm text-white text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+                    <i class="fas fa-rocket ml-1"></i> انطلق معنا اليوم
+                </div>
+            
+                <h2 class="text-3xl md:text-5xl font-extrabold mb-8 leading-tight drop-shadow-lg">هل أنت مستعد لبدء رحلتك معنا؟</h2>
+            
+                <p class="text-xl text-blue-100 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    انضم إلى آلاف المستخدمين الذين يستفيدون من خدماتنا في إدارة مخالفاتهم المرورية بكل سهولة وأمان. وفر وقتك وجهدك مع منصتنا المتكاملة.
+                </p>
+            
+                <div class="flex flex-col sm:flex-row justify-center gap-8">
+                    <a asp-action="Login" class="group relative overflow-hidden bg-gradient-to-r from-blue-400 to-blue-700 text-white hover:from-blue-600 hover:to-blue-900 font-bold py-6 px-12 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        <span class="relative z-10 flex items-center justify-center">
+                            <i class="fas fa-sign-in-alt ml-2 transition-transform group-hover:translate-x-1"></i>
+                            <span>تسجيل الدخول</span>
+                        </span>
+                        <span class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                    </a>
+                    <a href="#" class="group relative overflow-hidden border-2 border-white text-white hover:bg-white hover:bg-opacity-10 px-12 py-6 rounded-2xl font-bold transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        <span class="relative z-10 flex items-center justify-center">
+                            <i class="fas fa-comments ml-2 transition-transform group-hover:translate-x-1"></i>
+                            <span>تواصل مع الدعم</span>
+                        </span>
+                        <span class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                    </a>
+                </div>
+            
+                <!-- Trust indicators -->
+                <div class="mt-12 pt-8 border-t border-white border-opacity-10">
+                    <p class="text-blue-100 text-sm mb-6">موثوق به من قبل الشركات الرائدة</p>
+                    <div class="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-80">
+                        <div class="h-8 flex items-center">
+                            <i class="fas fa-shield-alt text-2xl text-green-400"></i>
+                            <span class="mr-2 text-white font-medium">حماية متقدمة</span>
+                        </div>
+                        <div class="h-8 flex items-center">
+                            <i class="fas fa-lock text-2xl text-blue-300"></i>
+                            <span class="mr-2 text-white font-medium">تشفير SSL</span>
+                        </div>
+                        <div class="h-8 flex items-center">
+                            <i class="fas fa-check-circle text-2xl text-green-400"></i>
+                            <span class="mr-2 text-white font-medium">مدفوعات آمنة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Floating elements -->
+        <div class="absolute bottom-0 left-0 w-full h-24 bg-white opacity-5"></div>
+        <div class="absolute bottom-10 left-1/4 w-4 h-4 bg-white rounded-full opacity-30"></div>
+        <div class="absolute bottom-20 right-1/3 w-2 h-2 bg-white rounded-full opacity-20"></div>
+        <div class="absolute top-1/3 right-1/4 w-3 h-3 bg-white rounded-full opacity-25"></div>
+    </section>
+
+    <!-- Mobile App Banner -->
+    <section class="relative py-24 md:py-32 bg-gradient-to-br from-blue-600 to-blue-800 text-white overflow-hidden">
+        <!-- Prominent coming-soon ribbon -->
+        <div class="coming-soon-ribbon" aria-hidden="true">قريبًا</div>
+        <!-- Decorative elements -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-white rounded-full opacity-5"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-white rounded-full opacity-5"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full filter blur-3xl opacity-10"></div>
+        
+            <!-- Grid pattern -->
+            <div class="absolute inset-0 opacity-5" style="background-image: url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h40v40h-40z\' fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');"></div>
+        </div>
+    
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center">
+                <!-- Content -->
+                <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-10 text-center lg:text-right" data-animate="fade-right">
+                    <div class="inline-flex items-center bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                        <span class="relative flex h-2 w-2 mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <span class="text-white text-sm font-medium">متاح الآن على المتجر</span>
+                    </div>
+                
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+                        حمل التطبيق وتمتع <span class="text-blue-200">بخصم 20%</span> على أول دفعة
+                    </h2>
+                
+                    <p class="text-lg md:text-xl text-blue-100 mb-8 max-w-xl mx-auto lg:mr-0 lg:ml-auto leading-relaxed">
+                        إدارة مخالفاتك المرورية أصبحت أسهل مع تطبيقنا المتنقل. استلم الإشعارات، تابع المخالفات، وادفع الغرامات بلمسة زر.
+                    </p>
+                    <div class="inline-flex items-center bg-white bg-opacity-10 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
+                        <i class="fas fa-info-circle text-yellow-300 ml-2"></i>
+                        <span class="text-white text-sm font-medium">تطبيقات الهواتف قيد التطوير ...</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4 sm:space-x-reverse mb-10">
+                       <a href="#" role="button" aria-disabled="true" class="group relative overflow-hidden bg-white bg-opacity-20 cursor-not-allowed text-blue-100 font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center" title="قريباً على App Store">
+                            <i class="fab fa-apple text-2xl ml-2 opacity-50"></i>
+                            <div class="text-right mr-2 opacity-50">
+                                <div class="text-xs font-normal">COMING SOON</div>
+                                <div class="leading-tight">App Store</div>
+                            </div>
+                            <span class="app-coming-badge ">قريبًا</span>
+                            <span class="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800 opacity-0"></span>
+                        </a>
+                    
+                        <a href="#" role="button" aria-disabled="true" class="group relative overflow-hidden bg-black bg-opacity-20 cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl border-2 border-white border-opacity-20 flex items-center justify-center" title="قريباً على Google Play">
+                            <i class="fab fa-google-play text-2xl ml-2 opacity-50"></i>
+                            <div class="text-right mr-2 opacity-50">
+                                <div class="text-xs font-normal">COMING SOON</div>
+                                <div class="leading-tight">Google Play</div>
+                            </div>
+                            <span class="app-coming-badge">قريبًا</span>
+                            <span class="absolute inset-0 bg-white opacity-0"></span>
+                        </a>
+                    </div>
+                
+                    <!-- App features -->
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-4 max-w-md mx-auto lg:mx-0 lg:ml-auto">
+                        <div class="flex items-center bg-white bg-opacity-10 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                            <i class="fas fa-bolt text-yellow-400 ml-1"></i>
+                            <span class="text-sm">دفع فوري</span>
+                        </div>
+                        <div class="flex items-center bg-white bg-opacity-10 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                            <i class="fas fa-bell text-blue-300 ml-1"></i>
+                            <span class="text-sm">إشعارات فورية</span>
+                        </div>
+                        <div class="flex items-center bg-white bg-opacity-10 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                            <i class="fas fa-shield-alt text-green-400 ml-1"></i>
+                            <span class="text-sm">آمن 100%</span>
+                        </div>
+                    </div>
+                
+                    <!-- Ratings -->
+                    @* <div class="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-3 sm:space-y-0 sm:space-x-6 sm:space-x-reverse">
+                        <div class="flex items-center">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="mr-2 text-white font-medium">4.9/5</span>
+                            <span class="text-blue-200 text-sm">(1,234+ تقييم)</span>
+                        </div>
+                        <div class="h-4 w-px bg-white bg-opacity-20"></div>
+                        <div class="text-blue-100 text-sm">
+                            <i class="fas fa-download ml-1"></i> 50,000+ عملية تحميل
+                        </div>
+                    </div> *@
+                </div>
+            
+                <!-- App mockup -->
+                <div class="lg:w-1/2 relative" data-animate="fade-left">
+                    <div class="relative max-w-md mx-auto">
+                        <!-- Overlay badge on mockup to reinforce 'coming soon' -->
+                        <div class="phone-coming-overlay absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+                            <span class="phone-coming-text">قريبًا</span>
+                        </div>
+                        <!-- Floating notification -->
+                        <div class="absolute -top-6 right-1/4 bg-white text-gray-800 p-3 rounded-xl shadow-2xl z-20 transform transition-transform duration-500 hover:scale-105" style="width: 200px;">
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-2 rounded-lg mr-2">
+                                    <i class="fas fa-bell text-blue-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-bold text-sm">إشعار جديد</div>
+                                    <p class="text-xs text-gray-500">تم تحديث حالة مخالفتك</p>
+                                </div>
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    
+                        <!-- Phone mockup -->
+                        <div class="relative z-10">
+                            <!-- Phone frame -->
+                            <div class="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-600 rounded-[40px] p-1.5 transform rotate-1 -translate-y-2 shadow-2xl">
+                                <div class="bg-white rounded-[32px] w-full h-full overflow-hidden">
+                                    <!-- Notch -->
+                                    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-gray-900 rounded-full flex items-center justify-between px-4">
+                                        <div class="w-1 h-1 bg-gray-600 rounded-full"></div>
+                                        <div class="w-6 h-3 bg-gray-900 rounded-full"></div>
+                                        <div class="w-1 h-1 bg-gray-600 rounded-full"></div>
+                                    </div>
+                                    <!-- Screen -->
+                                    <div class="pt-16 pb-4 px-2 h-full">
+                                        <img src="/images/app-mockup.svg" alt="تطبيق المخالفات المرورية" class="w-full h-full object-cover rounded-b-3xl">
+                                    </div>
+                                    <!-- Home indicator -->
+                                    <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gray-300 rounded-full"></div>
+                                </div>
+                            </div>
+                            <!-- App screenshot -->
+                            <img src="/images/app-mockup.svg" alt="تطبيق المخالفات المرورية" class="relative z-10 w-full max-w-xs mx-auto drop-shadow-2xl">
+                        </div>
+                    
+                        <!-- Floating payment success -->
+                        <div class="absolute -bottom-6 -right-4 bg-white text-green-600 p-3 rounded-xl shadow-2xl z-20 transform transition-transform duration-700 hover:scale-105" style="width: 160px;">
+                            <div class="flex items-center">
+                                <div class="bg-green-100 p-2 rounded-lg mr-2">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm">تم الدفع بنجاح</div>
+                                    <p class="text-xs text-gray-500">50.00 ر.س</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Floating elements -->
+                    <div class="absolute -top-10 -left-10 w-20 h-20 bg-yellow-400 rounded-full opacity-10"></div>
+                    <div class="absolute bottom-10 -right-10 w-32 h-32 bg-green-400 rounded-full opacity-10"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Manual Section -->
+        <h1 >gonna make it so if the website is on phone media it display a phone tutorial and if it isn't display a laptop tutorial and i am gonna need to design a better tutorial and mybe just make it display images with already frames instead of hard coding it in</h1>
+        @if (ViewBag.ManualImages != null && ViewBag.ManualImages.Count > 0)
+        {
+            <section id="Manual" class="py-24 bg-gradient-to-br from-blue-50 to-white flex items-center min-h-[80vh]">
+                    <div class="container mx-auto px-4 flex flex-col items-center justify-center">
+                        <div class="text-center mb-12">
+                            <h2 class="text-3xl md:text-4xl font-extrabold text-blue-900 mb-4 drop-shadow">دليل المستخدم</h2>
+                            <div class="w-20 h-1 bg-gradient-to-r from-blue-600 to-blue-800 mx-auto rounded-full"></div>
+                        </div>
+                        <div class="manual-container flex flex-col md:flex-row items-center justify-center gap-12 bg-white bg-opacity-80 rounded-3xl shadow-2xl p-8 md:p-12 border border-blue-100">
+                            <!-- Phone -->
+                            <div class="phone-frame relative flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 border-8 border-blue-200 rounded-[2.5rem] shadow-xl w-64 h-[430px] md:w-72 md:h-[500px] overflow-hidden">
+                                <div class="phone-screen flex items-center justify-center w-full h-full bg-white rounded-[2rem] shadow-inner p-2">
+                                    <div class="tutorial-step w-full h-full flex items-center justify-center">
+                                        <img id="tutorialImage" src="@ViewBag.ManualImages[0]" alt="Step 1" class="w-full h-full object-contain rounded-2xl shadow-md" />
+                                    </div>
+                                </div>
+                                <p id="caption" class="caption absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-blue-700 font-semibold bg-white bg-opacity-80 px-3 py-1 rounded-full shadow">Step 1 of @ViewBag.ManualImages.Count</p>
+                            </div>
+                            <!-- Step Text -->
+                            <div class="step-text flex-1 bg-gradient-to-br from-blue-100 to-white p-8 rounded-2xl shadow-lg text-center md:text-right text-blue-900 font-medium text-lg leading-relaxed min-w-[250px] max-w-md border border-blue-100">
+                                @{
+                                    var stepTexts = new List<string>
+                                    {
+                                        "افتح التطبيق من الشاشة الرئيسية.",
+                                        "سجّل الدخول باستخدام بياناتك.",
+                                        "ادخل على التذاكر الغير مدفوعة",
+                                        "اختر الخيار المطلوب وأكمل العملية.",
+                                        "اضغط على زر دفع التذكرة",
+                                        "ادخل بيانات بطاقتك ثم اضغط على زر دفع"
+                                    };
+                                }
+                                <p id="stepDescription">@stepTexts[0]</p>
+                            </div>
+                        </div>
+                        <!-- Navigation -->
+                        <div class="nav-buttons flex justify-center gap-6 mt-8">
+                            <button id="prevBtn" class="px-6 py-3 bg-gradient-to-r from-blue-400 to-blue-700 text-white rounded-xl font-bold shadow-md hover:from-blue-600 hover:to-blue-900 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300" disabled>السابق</button>
+                            <button id="nextBtn" class="px-6 py-3 bg-gradient-to-r from-blue-400 to-blue-700 text-white rounded-xl font-bold shadow-md hover:from-blue-600 hover:to-blue-900 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300">التالي</button>
+                        </div>
+                    </div>
+                </section> 
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const images = @Html.Raw(Json.Serialize(ViewBag.ManualImages));
+                    const stepTexts = [
+                        "افتح التطبيق من الشاشة الرئيسية.",
+                        "سجّل الدخول باستخدام بياناتك.",
+                        "ادخل على التذاكر الغير مدفوعة",
+                        "اختر الخيار المطلوب وأكمل العملية.",
+                        "اضغط على زر دفع التذكرة",
+                        "ادخل بيانات بطاقتك ثم اضغط على زر دفع"
+                    ];
+            
+                    let currentIndex = 0;
+                    const imgEl = document.getElementById("tutorialImage");
+                    const captionEl = document.getElementById("caption");
+                    const descEl = document.getElementById("stepDescription");
+                    const prevBtn = document.getElementById("prevBtn");
+                    const nextBtn = document.getElementById("nextBtn");
+            
+                    function updateStep() {
+                        imgEl.src = images[currentIndex];
+                        captionEl.textContent = `الخطوة ${currentIndex + 1} من ${images.length}`;
+                        descEl.textContent = stepTexts[currentIndex] || '';
+                        prevBtn.disabled = currentIndex === 0;
+                        nextBtn.disabled = currentIndex === images.length - 1;
+                    }
+            
+                    prevBtn.addEventListener("click", () => {
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            updateStep();
+                        }
+                    });
+            
+                    nextBtn.addEventListener("click", () => {
+                        if (currentIndex < images.length - 1) {
+                            currentIndex++;
+                            updateStep();
+                        }
+                    });
+            
+                    // Initialize
+                    updateStep();
+                });
+            </script>
+         }
+
+    <!-- Scroll Animation Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intersection Observer for scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animated');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all elements with data-animate attribute
+            document.querySelectorAll('[data-animate]').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Counter animation for statistics
+            const counters = document.querySelectorAll('.counter');
+            const counterObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                        entry.target.classList.add('counted');
+                        animateCounter(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            counters.forEach(counter => counterObserver.observe(counter));
+
+            function animateCounter(element) {
+                const target = parseFloat(element.getAttribute('data-target'));
+                const decimals = parseInt(element.getAttribute('data-decimals') || '0');
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    element.textContent = current.toFixed(decimals);
+                }, 16);
+            }
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href !== '#' && document.querySelector(href)) {
+                        e.preventDefault();
+                        document.querySelector(href).scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>

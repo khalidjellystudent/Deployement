@@ -1,0 +1,199 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+ @* Model will be a list of image URLs *@
+@model List<string>
+
+@* // Step descriptions (same order as images) *@
+@{
+    var stepTexts = new List<string>
+    {
+        "افتح التطبيق من الشاشة الرئيسية.",
+        "سجّل الدخول باستخدام بياناتك.",
+        "ادخل على التذاكر الغير مدفوعة",
+        "اختر الخيار المطلوب وأكمل العملية.",
+        " اضغط على زر دفع التذكرة",
+        "ادخل بيانات بطاقتك ثم اضغط على زر دفع"
+    };
+}
+<p class="Titlee">دليل المستخدم</p>
+<div class="contain">
+    <div class="manual-wrap">
+        <!-- Phone -->
+        <div class="phone-frame">
+            <div class="phone-screen">
+                <div class="tutorial-step">
+                    <img id="tutorialImage" src="@Model.First()" alt="Step 1" />
+                </div>
+            </div>
+            <p id="caption" class="caption"><strong>Step 1 of @Model.Count</strong></p>
+        </div>
+    
+        <!-- Step Text -->
+        <div class="step-text">
+        
+            <p id="stepDescription">@stepTexts[0]</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-buttons">
+        <button id="prevBtn" disabled>Previous</button>
+        <button id="nextBtn">Next</button>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .contain{
+            width: 60%;
+            margin: auto;
+            background-color: white;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+        }
+        .Titlee {
+            font-size: 40px;
+            width: 35%;
+            text-align: center;
+            color: black;
+            margin: 0 auto; /* centers horizontally */
+        }
+        .manual-wrap {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+        }
+        .phone-frame {
+            width: 25%;
+            aspect-ratio: 439 / 1000;
+            border: 5px solid #111;
+            border-radius: 4%;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+            background: #000;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tutorial-step img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .caption {
+            margin-top: 8px;
+            text-align: center;
+            color: #444;
+            font-size: 0.95rem;
+        }
+
+        .step-text {
+            flex: 1;
+            font-size: 1rem;
+            line-height: 2;
+            color: #333;
+            background: #f9f9f9;
+            padding: 15px;
+            margin : auto;
+            margin-top : 15%;
+            align-self : center;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-buttons {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+            .nav-buttons button {
+                padding: 8px 16px;
+                margin: 0 5px;
+                border: none;
+                background: #333;
+                color: #fff;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                .nav-buttons button:disabled {
+                    background: #888;
+                    cursor: not-allowed;
+                }
+
+        @@media (max-width: 768px) {
+            .manual-wrap
+
+        {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contain {
+            width : 100%;
+                background-color: white;
+                box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+        }
+        .Titlee {
+                font-size : 30px;
+        }
+        .phone-frame {
+            width: 50%;
+            border: 3px solid #111;
+            border-radius: 20px;
+
+        }
+
+        .step-text {
+            width: 100%;
+        }
+
+        }
+    </style>
+}
+@section Scripts {
+    <script>
+        const images = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+        const stepTexts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(stepTexts));
+
+        let currentIndex = 0;
+
+        const imgEl = document.getElementById("tutorialImage");
+        const captionEl = document.getElementById("caption");
+        const descEl = document.getElementById("stepDescription");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        function updateStep() {
+            imgEl.src = images[currentIndex];
+            captionEl.textContent = `Step ${currentIndex + 1} of ${images.length}`;
+            descEl.textContent = stepTexts[currentIndex];
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === images.length - 1;
+        }
+
+        prevBtn.addEventListener("click", () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateStep();
+            }
+        });
+
+        nextBtn.addEventListener("click", () => {
+            if (currentIndex < images.length - 1) {
+                currentIndex++;
+                updateStep();
+            }
+        });
+    </script>
+}

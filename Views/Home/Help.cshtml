@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "مركز المساعدة";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/css/site.css" rel="stylesheet" />
+<script src="~/js/help.js"></script>
+<!-- Help Center Section -->
+<section class="help-center">
+<p class="text-center text-blue-800"> needs working and updated depending on the issues the users have</p>
+    <div class="container">
+        <!-- Header -->
+        <div class="help-header">
+            <div class="help-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z" />
+                    <path d="M11 11h2v6h-2zm0-4h2v2h-2z" />
+                </svg>
+            </div>
+            <h1>مركز المساعدة</h1>
+            <p>ابحث عن إجابات للأسئلة الشائعة أو تواصل مع فريق الدعم</p>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" placeholder="ابحث في الأسئلة الشائعة...">
+                <button>
+                    <svg viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="help-content">
+            <!-- FAQ Section -->
+            <div class="faq-section">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2>الأسئلة الشائعة</h2>
+                    </div>
+
+                    <!-- FAQ Accordion -->
+                    <div class="faq-accordion">
+                        <!-- FAQ Item 1 -->
+                        <div class="faq-item">
+                            <button class="faq-question" onclick="toggleFAQ(1)">
+                                <span>كيف يمكنني استعادة كلمة المرور؟</span>
+                                <svg id="icon-1" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div id="content-1" class="faq-answer">
+                                <p>لإستعادة كلمة المرور:</p>
+                                <ol>
+                                    <li>التوجه الى أقرب قسم مرور مع احضار رخصة القيادة </li>
+                                    
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 2 -->
+                        <div class="faq-item">
+                            <button class="faq-question" onclick="toggleFAQ(2)">
+                                <span>كيف أستعلم عن مخالفة مرورية؟</span>
+                                <svg id="icon-2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div id="content-2" class="faq-answer">
+                                <p>يمكنك الاستعلام عن المخالفات المرورية عبر:</p>
+                                <ul>
+                                    <li>تطبيق الهاتف الذكي الخاص بنا قريبا </li>
+                                    <li>الموقع الإلكتروني : قم بتسجيل الدخول  "</li>
+                                    <li>مراجعة أقرب فرع مروري</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact & Resources -->
+            <div class="side-section">
+                <!-- Contact Card -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2>تواصل معنا</h2>
+                    </div>
+                    <div class="contact-methods">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3>البريد الإلكتروني</h3>
+                                <p>khalidjelly2001@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript File -->
+<script src="~/js/help.js"></script>

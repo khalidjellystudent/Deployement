@@ -1,0 +1,40 @@
+﻿@model OfficerStatsViewModel
+@{
+    ViewData["Title"] = "أداء الضابط";
+    Layout = "_AdminLayout";
+}
+
+<section class="p-6">
+    <h2 class="text-2xl font-bold mb-4">أداء الضابط: @Model.Officer.Name</h2>
+
+    <div class="grid grid-cols-2 gap-6 mb-6">
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h3 class="text-lg font-semibold text-gray-700">إجمالي المخالفات</h3>
+            <p class="text-2xl font-bold text-blue-700">@Model.TotalTickets</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h3 class="text-lg font-semibold text-gray-700">إجمالي الغرامات</h3>
+            <p class="text-2xl font-bold text-green-700">@Model.TotalFines.ToString("C")</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow mb-6">
+        <h3 class="text-lg font-semibold mb-2">المخالفات حسب الشهر</h3>
+        <ul class="list-disc pr-6">
+            @foreach (var month in Model.TicketsPerMonth)
+            {
+                <li>@month.Month: @month.Count</li>
+            }
+        </ul>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow">
+        <h3 class="text-lg font-semibold mb-2">أنواع المخالفات</h3>
+        <ul class="list-disc pr-6">
+            @foreach (var v in Model.ViolationBreakdown)
+            {
+                <li>@v.ViolationType: @v.Count</li>
+            }
+        </ul>
+    </div>
+</section>

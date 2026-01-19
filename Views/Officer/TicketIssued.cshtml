@@ -1,0 +1,63 @@
+﻿@model Ticket
+@inject TicketSystem.Services.IQrCodeService QrService
+@{
+    ViewData["Title"] = "Ticket Issued Successfully";
+    Layout = "_OfficerLayout";
+}
+@{
+    var ticketUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Ticket/Open/{Model.Ticket_Id}";
+    var qrDataUri = QrService.GeneratePngDataUri(ticketUrl, 10);
+}
+        <div class="container mt-4">
+            <div class="alert alert-success">
+                <h4><i class="fas fa-check-circle"></i> @ViewData["SuccessMessage"]</h4>
+            </div>
+        <a asp-action="DetailedTicket" asp-controller="Officer" asp-route-id="@Model.Ticket_Id">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h4>Ticket #@Model.Ticket_Id Issued Successfully</h4>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-3">Ticket Number:</dt>
+                            <dd class="col-sm-9">@Model.Ticket_Id</dd>
+
+                            <dt class="col-sm-3">Violations:</dt>
+                            <dd class="col-sm-9">@Model.Violations</dd>
+
+                            <dt class="col-sm-3">License Plate:</dt>
+                            <dd class="col-sm-9">@Model.Plate_Number</dd>
+
+                            <dt class="col-sm-3">Fine Amount:</dt>
+                            <dd class="col-sm-9">@Model.FineAmount.ToString("C")</dd>
+
+                            <dt class="col-sm-3">Issued On:</dt>
+                            <dd class="col-sm-9">@DateTime.Now.ToString("g")</dd>
+                        </dl>
+                        <div class="mt-3 d-flex align-items-center gap-3">
+                            <div>
+                                <img src="@qrDataUri" alt="Ticket QR" style="width:160px;height:160px;border:1px solid #eaeaea;padding:6px;background:#fff;border-radius:6px;" />
+                            </div>
+                            <div>
+                                <p class="mb-1 fw-bold">Scan to view ticket</p>
+                                <small class="text-muted">Opens: @ticketUrl</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <div class="mt-4">
+                <a asp-action="IssueTicket" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Issue Another Ticket
+                </a>
+                <a asp-action="Receipt" asp-route-id="@Model.Ticket_Id" target="_blank" rel="noopener"
+                   class="btn btn-outline-dark">
+                    <i class="fas fa-print"></i> Print Receipt (Signature)
+                </a>
+                <a asp-action="Index" asp-controller="Officer" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Return to Dashboard
+                </a>
+            </div>
+        </div>
+

@@ -1,0 +1,19 @@
+Quick commands
+- Build: dotnet build TicketSystem.csproj
+- Run: dotnet run --project TicketSystem.csproj
+
+Key files
+- Home page: Views/Home/Index.cshtml
+- Login page: Views/Home/Login.cshtml
+- Admin layout: Views/Shared/_AdminLayout.cshtml
+- Officer layout: Views/Shared/_OfficerLayout.cshtml
+- Static preview: wwwroot/static/index.html
+
+Common fixes
+- Red editor page (Razor parse error): look for nested double quotes in attributes (use single quotes for data URLs).
+- Password eye: Login.cshtml uses #Password and #togglePassword script — increase input padding (pr-16) so icons don't overlap.
+- Sidebar overlap (mobile): sidebar is off-canvas; use hamburger to open/close.
+
+UI hints
+- Make "Coming Soon" obvious: add a ribbon with "قريبًا", overlay on mockup, and set store buttons aria-disabled="true".
+- Notification badge: render unread feedback count in _AdminLayout.cshtml (inject AppDbContext or use an API).

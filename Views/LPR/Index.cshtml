@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "LPR Upload";
+}
+<h2>LPR Upload</h2>
+<form asp-action="Index" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*" required />
+    <button type="submit">Recognize</button>
+</form>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <p style="color:red">
+        @string.Join("; ", ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage))
+    </p>
+}

@@ -1,0 +1,494 @@
+﻿@model List<TicketSystem.Models.Ticket>
+@{
+    ViewData["Title"] = "المخالفات المرورية";
+    Layout = "_UserLayout";
+}
+<style>
+    .ticket-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+
+        .ticket-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            text-decoration: none;
+            color: inherit;
+        }
+
+    .ticket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .ticket-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .ticket-body {
+        padding: 1.5rem;
+    }
+
+    .ticket-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+        .meta-item i {
+            color: #9ca3af;
+            width: 20px;
+            text-align: center;
+        }
+
+    .ticket-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background-color: #f9fafb;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .ticket-date {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .ticket-due {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+        .ticket-due.overdue {
+            color: #ef4444;
+        }
+
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-paid {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .status-underprocess {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h4 {
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #9ca3af;
+            max-width: 400px;
+            margin: 0 auto 1.5rem;
+        }
+
+    .filter-btn {
+        border: 1px solid #e5e7eb;
+        background: white;
+        color: #4b5563;
+        padding: 0.4rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .filter-btn i {
+            font-size: 0.9em;
+        }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .page-title i {
+            color: #1e40af;
+            font-size: 1.75rem;
+        }
+
+    .filters {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    @@media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .filters {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .filter-btn {
+            white-space: nowrap;
+        }
+    }
+</style>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-ticket-alt"></i>
+            <span>المخالفات المرورية</span>
+        </h1>
+
+        <div class="filters">
+            <button class="filter-btn active" data-status="all">
+                <i class="fas fa-list"></i>
+                الكل
+            </button>
+            <button class="filter-btn" data-status="pending">
+                <i class="fas fa-clock"></i>
+                قيد الانتظار
+            </button>
+            <button class="filter-btn" data-status="paid">
+                <i class="fas fa-check-circle"></i>
+                مدفوعة
+            </button>
+            <button class="filter-btn" data-status="underprocess">
+                <i class="fas fa-spinner"></i>
+                تحت المعاينة
+            </button>
+        </div>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="fas fa-check-circle"></i>
+            <h4>لا توجد مخالفات</h4>
+            <p>ليس لديك أي مخالفات مرورية مسجلة حالياً</p>
+            <a href="/" class="btn btn-primary">العودة للصفحة الرئيسية</a>
+        </div>
+    }
+    else
+    {
+        <div id="ticketsContainer">
+            @foreach (var ticket in Model)
+            {
+                <a asp-action="DetailedTicket" asp-route-id="@ticket.Ticket_Id"
+                   class="ticket-card ticket-item"
+                   data-status="@ticket.Status?.ToLower()">
+                    <div class="ticket-header">
+                        <h3 class="ticket-title">@ticket.Violations</h3>
+                        <span class="status-badge status-@ticket.Status?.ToLower()">
+                            @GetStatusArabicName(ticket.Status)
+                        </span>
+                    </div>
+                    <div class="ticket-body">
+                        <div class="ticket-meta">
+                            <span class="meta-item">
+                                <i class="fas fa-car"></i>
+                                <span>@ticket.Plate_Number</span>
+                            </span>
+                            <span class="meta-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>@ticket.Violation_Place</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ticket-footer">
+                        <div class="ticket-date">
+                            <i class="far fa-calendar-alt"></i>
+                            @ticket.Ticket_Time.ToString("dd/MM/yyyy")
+                        </div>
+                        <div class="ticket-due @(ticket.Due_Date < DateTime.Now ? "overdue" : "")">
+                            <i class="far fa-clock"></i>
+                            استحقاق @ticket.Due_Date.ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "paid" => "status-paid",
+            "pending" => "status-pending",
+            "underprocess" => "status-underprocess",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetStatusArabicName(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "paid" => "مدفوعة",
+            "pending" => "قيد الانتظار",
+            "underprocess" => "قيد المراجعة",
+            _ => status ?? "غير معروف"
+        };
+    }
+}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all ticket items and filter buttons
+        const ticketItems = document.querySelectorAll('.ticket-item');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+
+        // Filter function
+        function filterTickets(status) {
+            let visibleCount = 0;
+            const currentDate = new Date();
+
+            ticketItems.forEach(function(item) {
+                const itemStatus = item.getAttribute('data-status');
+                const shouldShow = status === 'all' || itemStatus === status;
+
+                if (shouldShow) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Update active state of filter buttons
+            filterButtons.forEach(btn => {
+                if (btn.getAttribute('data-status') === status) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Update URL without page reload
+            const newUrl = status === 'all'
+                ? window.location.pathname
+                : `${window.location.pathname}?status=${status}`;
+
+            window.history.pushState({}, '', newUrl);
+
+            // Show empty state if no items match the filter
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
+        }
+
+        // Add click event to filter buttons
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+                filterTickets(status);
+            });
+        });
+
+        // Check URL for initial filter
+        const urlParams = new URLSearchParams(window.location.search);
+        const statusFilter = urlParams.get('status') || 'all';
+
+        // Initialize with filter from URL or 'all'
+        filterTickets(statusFilter);
+
+        // Add animation to ticket cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Apply initial styles and observe each ticket
+        document.querySelectorAll('.ticket-card').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = `opacity 0.3s ease-out ${index * 0.1}s, transform 0.3s ease-out ${index * 0.1}s`;
+            observer.observe(card);
+        });
+    });
+</script>
+
+<style>
+    .list-group-item {
+        transition: all 0.2s ease;
+    }
+
+        .list-group-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+    }
+
+    .dropdown-menu {
+        z-index: 1000;
+    }
+
+    .filter-option {
+        cursor: pointer;
+    }
+
+        .filter-option:hover {
+            background-color: #f8f9fa;
+        }
+
+    .float-left {
+        float: left !important;
+    }
+
+    .filter-option i {
+        width: 1.25em; /* fixed-width column for icon */
+        text-align: center;
+        margin-inline-end: .5rem; /* replaces me-1 for consistent RTL/LTR spacing */
+    }
+    /* Make ticket items fully responsive */
+    .ticket-item {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+        /* Ensure inner flex layout wraps on small screens */
+        .ticket-item .d-flex {
+            flex-wrap: wrap;
+        }
+
+    /* Adjust spacing and layout for small screens */
+    @@media (max-width: 576px) {
+        .ticket-item {
+            padding: 1rem;
+        }
+
+        .ticket-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        .ticket-title {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-badge {
+            margin-right: auto;
+            margin-left: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+        }
+
+        .ticket-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .ticket-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .ticket-due,
+        .ticket-date {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+        /* Ensure status is always visible */
+        .ticket-item .status-badge {
+            display: inline-flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    }
+</style>

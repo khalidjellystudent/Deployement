@@ -1,0 +1,225 @@
+﻿@using TicketSystem.Models
+@model Ticket
+@{
+    ViewData["Title"] = "إصدار مخالفة جديدة";
+    Layout = "_OfficerLayout";
+
+    var violations = ViewBag.Violations as List<Violation> ?? new List<Violation>();
+    var selectedNames = (Model?.Violations ?? string.Empty)
+        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+        .Select(v => v.Trim())
+        .ToHashSet(StringComparer.Ordinal);
+}
+    <div class="container-fluid">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-ticket-alt me-2"></i>إصدار مخالفة مرورية</h5>
+            </div>
+            <div class="card-body">
+                <!-- رسالة النجاح -->
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success">
+                        @TempData["Success"]
+                    </div>
+                }
+
+                <form id="issueTicketForm" asp-action="WritingTicket" method="post">
+                    <!-- رقم المخالفة (تلقائي) -->
+                    <div class="mb-3" hidden>
+                        <label class="form-label">رقم المخالفة</label>
+                        <input asp-for="Ticket_Id" class="form-control" readonly />
+                    </div>
+
+                    <!-- بريد السائق -->
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">البريد الإلكتروني للسائق</label>
+                        <input asp-for="Email" class="form-control" placeholder="driverid@example.com" required />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <!-- اسم الضابط (مخفي) -->
+                    <div class="mb-3">
+                        <input type="hidden" asp-for="IssuedBy" />
+                    </div>
+
+                    <!-- مكان المخالفة -->
+                    <div class="mb-3">
+                        <label asp-for="Violation_Place" class="form-label">مكان المخالفة</label>
+                        <div class="input-group">
+                            <input asp-for="Violation_Place"
+                                   id="Violation_Place"
+                                   class="form-control"
+                                   placeholder="مثال: شارع ... أو إحداثيات GPS مثل 24.7136, 46.6753"
+                                   required>
+                            <button type="button" id="btnUseGps" class="btn btn-outline-secondary">
+                                <i class="fas fa-location-crosshairs me-1"></i>استخدم موقعي
+                            </button>
+                        </div>
+                        <div id="gpsStatus" class="form-text"></div>
+                        <span asp-validation-for="Violation_Place" class="text-danger"></span>
+                    </div>
+
+                    <!-- رقم اللوحة -->
+                    <div class="mb-3">
+                        <label asp-for="Plate_Number" class="form-label">رقم اللوحة</label>
+                        <input asp-for="Plate_Number" class="form-control" id="Plate_Number" placeholder="1234" required />
+                        <span asp-validation-for="Plate_Number" class="text-danger"></span>
+                    </div>
+
+                    <!-- تقرير المخالفة -->
+                    <div class="mb-3">
+                        <label asp-for="Notes" class="form-label" >ملاحظات</label>
+                        <input asp-for="Notes" class="form-control" placeholder="ملاحظات حول إصدار المخالفة" required />
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+
+                    <!-- قائمة أنواع المخالفات -->
+                    <div class="mb-3">
+                        <label class="form-label">أنواع المخالفات</label>
+                        <div id="violation-list" class="d-flex flex-wrap gap-3">
+                            @if (!violations.Any())
+                            {
+                                <div class="alert alert-warning mb-0">
+                                    لا توجد مخالفات مُفعّلة حالياً. الرجاء التواصل مع المسؤول لإضافتها.
+                                </div>
+                            }
+                            else
+                            {
+                                foreach (var violation in violations)
+                                {
+                                    <label class="form-check-label d-flex align-items-center">
+                                        <input class="form-check-input me-2 violation-checkbox"
+                                               type="checkbox"
+                                               name="ViolationIds"
+                                               value="@violation.Id"
+                                               data-cost="@violation.Cost"
+                                               @(selectedNames.Contains(violation.Name) ? "checked" : null) />
+                                        <span>@violation.Name</span>
+                                    </label>
+                                }
+                            }
+                        </div>
+                        <div id="violation-error" class="text-danger mt-1" style="display:none;">
+                            يجب اختيار مخالفة واحدة على الأقل قبل إصدار التذكرة.
+                        </div>
+                    </div>
+
+                    <!-- مبلغ الغرامة (مخفي) -->
+                    <div class="mb-3" hidden>
+                        <label asp-for="FineAmount" class="form-label">مبلغ الغرامة</label>
+                        <input asp-for="FineAmount"
+                               id="fineamount"
+                               class="form-control" />
+                    </div>
+
+                    <!-- تاريخ الاستحقاق -->
+                    <div class="col-md-3">
+                        <label asp-for="Due_Date" class="form-label">تاريخ الاستحقاق</label>
+                        <input asp-for="Due_Date" type="date" class="form-control" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-paper-plane me-2"></i>إصدار المخالفة
+                        </button>
+                    </div>
+                    <p>@ViewData["m"]</p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fineAmountInput = document.getElementById("fineamount");
+            const checkboxes = document.querySelectorAll(".violation-checkbox");
+            const form = document.getElementById("issueTicketForm");
+            const errorMsg = document.getElementById("violation-error");
+
+            // GPS helpers
+            const btnGps = document.getElementById("btnUseGps");
+            const placeInput = document.getElementById("Violation_Place");
+            const gpsStatus = document.getElementById("gpsStatus");
+
+            function setGpsStatus(message, type = "muted") {
+                if (!gpsStatus) return;
+                const classes = ["text-muted", "text-success", "text-warning", "text-danger"];
+                gpsStatus.classList.remove(...classes);
+                gpsStatus.classList.add(`text-${type}`);
+                gpsStatus.textContent = message || "";
+            }
+
+            function useCurrentLocation() {
+                if (!navigator.geolocation) {
+                    setGpsStatus("المتصفح لا يدعم تحديد الموقع الجغرافي.", "danger");
+                    return;
+                }
+
+                const originalHtml = btnGps.innerHTML;
+                btnGps.disabled = true;
+                btnGps.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>جارِ تحديد الموقع...';
+                setGpsStatus("قد يطلب المتصفح إذن الوصول إلى الموقع...", "muted");
+
+                const isSecure = location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1";
+                if (!isSecure) {
+                    setGpsStatus("قد يفشل تحديد الموقع بدون اتصال HTTPS (باستثناء localhost).", "warning");
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const lat = pos.coords.latitude.toFixed(6);
+                        const lng = pos.coords.longitude.toFixed(6);
+                        placeInput.value = `${lat}, ${lng}`;
+                        setGpsStatus("تم ملء الحقل بإحداثيات موقعك الحالية.", "success");
+                        btnGps.disabled = false;
+                        btnGps.innerHTML = originalHtml;
+                    },
+                    (err) => {
+                        let msg = "تعذر تحديد الموقع.";
+                        if (err.code === err.PERMISSION_DENIED) msg = "تم رفض إذن الموقع. يرجى السماح بالوصول للموقع من المتصفح.";
+                        else if (err.code === err.POSITION_UNAVAILABLE) msg = "معلومات الموقع غير متاحة حالياً.";
+                        else if (err.code === err.TIMEOUT) msg = "انتهت مهلة تحديد الموقع. حاول مرة أخرى.";
+                        setGpsStatus(msg, "danger");
+                        btnGps.disabled = false;
+                        btnGps.innerHTML = originalHtml;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            }
+
+            btnGps?.addEventListener("click", useCurrentLocation);
+
+            function updateFineAmount() {
+                let total = 0;
+                checkboxes.forEach(cb => {
+                    if (cb.checked) {
+                        const cost = parseFloat(cb.dataset.cost || "0");
+                        total += isNaN(cost) ? 0 : cost;
+                    }
+                });
+                fineAmountInput.value = total;
+            }
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener("change", updateFineAmount);
+            });
+
+            if (form) {
+                form.addEventListener("submit", function (e) {
+                    const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+                    if (!anyChecked) {
+                        e.preventDefault();
+                        errorMsg.style.display = "block";
+                    } else {
+                        errorMsg.style.display = "none";
+                    }
+                });
+            }
+
+            updateFineAmount();
+        });
+    </script>
+}

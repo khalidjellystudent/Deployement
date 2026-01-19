@@ -1,0 +1,98 @@
+/* Hero, Feature, Stat Card Styles */
+.hero-gradient {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0c4a6e 100%);
+}
+.feature-card {
+    transition: all 0.3s ease;
+}
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+.stat-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Blob Animation */
+@keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+}
+.animate-blob {
+    animation: blob 7s infinite;
+}
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+/* Navigation buttons for manual section */
+.manual-nav-btn {
+    padding: 0.75rem 1.5rem; /* py-3 px-6 */
+    background: linear-gradient(to right, #38bdf8, #1e40af); /* from-blue-400 to-blue-700 */
+    color: #fff;
+    border-radius: 0.75rem; /* rounded-xl */
+    font-weight: bold;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); /* shadow-md */
+    transition: all 0.2s;
+    outline: none;
+}
+.manual-nav-btn:hover, .manual-nav-btn:focus {
+    background: linear-gradient(to right, #2563eb, #1e293b); /* hover:from-blue-600 hover:to-blue-900 */
+    box-shadow: 0 8px 16px -2px rgba(0,0,0,0.15); /* hover:shadow-lg */
+}
+.manual-nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Hero section primary button */
+.hero-btn-primary {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(to right, #38bdf8, #1e40af);
+    color: #fff;
+    padding: 1.25rem 2.5rem;
+    border-radius: 1rem;
+    font-weight: bold;
+    font-size: 1.125rem;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    text-align: center;
+    outline: none;
+}
+.hero-btn-primary:hover, .hero-btn-primary:focus {
+    background: linear-gradient(to right, #2563eb, #1e293b);
+    box-shadow: 0 16px 32px -8px rgba(0,0,0,0.15);
+}
+
+/* Hero section secondary button */
+.hero-btn-secondary {
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #fff;
+    color: #fff;
+    background: transparent;
+    padding: 1.25rem 2.5rem;
+    border-radius: 1rem;
+    font-weight: bold;
+    font-size: 1.125rem;
+    transition: all 0.3s;
+    text-align: center;
+    outline: none;
+}
+.hero-btn-secondary:hover, .hero-btn-secondary:focus {
+    background: rgba(255,255,255,0.1);
+}
+.app-notification-width { width: 200px; }
