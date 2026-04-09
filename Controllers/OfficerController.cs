@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Collections.Generic;
@@ -16,11 +19,13 @@ namespace TicketSystem.Controllers
     {
         private readonly AppDbContext _db;
         private readonly ILogger<OfficerController> _logger;
+        private readonly IWebHostEnvironment _env;
 
-        public OfficerController(AppDbContext context, ILogger<OfficerController> logger)
+        public OfficerController(AppDbContext context, ILogger<OfficerController> logger, IWebHostEnvironment env)
         {
             _db = context;
             _logger = logger;
+            _env = env;
         }
         public IActionResult Index()
         {
@@ -88,7 +93,7 @@ namespace TicketSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult WritingTicket(Ticket u, int[] ViolationIds)
+        public IActionResult WritingTicket(Ticket u, int[] ViolationIds, IFormFile? voiceReport)
         {
             // set who issued the ticket
             u.IssuedBy = User.FindFirst(ClaimTypes.Email)?.Value ?? "Unknown";
@@ -121,6 +126,35 @@ namespace TicketSystem.Controllers
             // snapshot names + cost at time of issuing
             u.Violations = string.Join(",", selectedViolations.Select(v => v.Name));
             u.FineAmount = selectedViolations.Sum(v => v.Cost);
+
+            // handle voice report upload
+            if (voiceReport != null && voiceReport.Length > 0)
+            {
+                if (string.IsNullOrWhiteSpace(voiceReport.ContentType) || !voiceReport.ContentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase))
+                {
+                    ViewData["m"] = "يُسمح بملفات الصوت فقط للتقرير.";
+                    ViewBag.Violations = _db.Violations
+                        .Where(v => v.IsActive)
+                        .OrderBy(v => v.Name)
+                        .ToList();
+                    return View("IssueTicket", u);
+                }
+
+                var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads", "audio");
+                Directory.CreateDirectory(uploadsRoot);
+
+                var ext = Path.GetExtension(voiceReport.FileName);
+                var safeExt = string.IsNullOrWhiteSpace(ext) ? ".m4a" : ext;
+                var fileName = $"ticket_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}{safeExt}";
+                var fullPath = Path.Combine(uploadsRoot, fileName);
+
+                using (var fs = new FileStream(fullPath, FileMode.Create))
+                {
+                    voiceReport.CopyTo(fs);
+                }
+
+                u.VoiceReportPath = $"/uploads/audio/{fileName}";
+            }
 
             // serialize and pass to confirmation via TempData
             TempData["PendingTicket"] = JsonSerializer.Serialize(u);

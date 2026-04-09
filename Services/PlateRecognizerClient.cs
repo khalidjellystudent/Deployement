@@ -1,23 +1,38 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace TicketSystem.Services;
 
 public class PlateRecognizerClient : IPlateRecognizerClient
 {
+    private const string PlaceholderToken = "<956a7c46a0ca0a929fb2a25c01dda6450d25e916>";
+
     private readonly HttpClient _http;
     private readonly PlateRecognizerOptions _opts;
+    private readonly ILogger<PlateRecognizerClient> _logger;
 
-    public PlateRecognizerClient(HttpClient http, IOptions<PlateRecognizerOptions> opts)
+    public PlateRecognizerClient(HttpClient http, IOptions<PlateRecognizerOptions> opts, ILogger<PlateRecognizerClient> logger)
     {
         _http = http;
         _opts = opts.Value;
+        _logger = logger;
 
-        if (string.IsNullOrWhiteSpace(_opts.ApiToken))
-            throw new InvalidOperationException("Plate Recognizer ApiToken is missing. Set via user-secrets or appsettings.");
+        var token = _opts.ApiToken?.Trim() ?? string.Empty;
 
-        _http.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Token", _opts.ApiToken);
+        _logger.LogInformation("PlateRecognizer ApiToken length: {Length}", token.Length);
+
+        if (string.IsNullOrWhiteSpace(token) || string.Equals(token, PlaceholderToken, StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogWarning(
+                "Plate Recognizer ApiToken is missing or still set to placeholder. " +
+                "Set PlateRecognizer:ApiToken using User Secrets or an environment variable before using LPR.");
+        }
+        else
+        {
+            _http.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Token", token);
+        }
     }
 
     public async Task<PlateResult?> RecognizeAsync(Stream imageStream, string? regions = null, int? cameraId = null)
@@ -27,13 +42,27 @@ public class PlateRecognizerClient : IPlateRecognizerClient
         imgContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
         form.Add(imgContent, "upload", "frame.jpg");
 
-        var resp = await _http.PostAsync(_opts.Endpoint, form);
-        var body = await resp.Content.ReadAsStringAsync();
+        try
+        {
+            _logger.LogDebug("Sending LPR request to {Endpoint} (regions={Regions}, cameraId={CameraId})", _opts.Endpoint, regions, cameraId);
+            var resp = await _http.PostAsync(_opts.Endpoint, form);
+            var body = await resp.Content.ReadAsStringAsync();
 
-        if (!resp.IsSuccessStatusCode)
-            throw new InvalidOperationException($"LPR API {resp.StatusCode}: {body}");
+            _logger.LogDebug("LPR response {StatusCode}: {Body}", resp.StatusCode, body);
 
-        return System.Text.Json.JsonSerializer.Deserialize<PlateResult>(
-            body, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (!resp.IsSuccessStatusCode)
+            {
+                _logger.LogError("LPR API error {StatusCode}: {Body}", resp.StatusCode, body);
+                throw new InvalidOperationException($"LPR API {resp.StatusCode}: {body}");
+            }
+
+            return System.Text.Json.JsonSerializer.Deserialize<PlateResult>(
+                body, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to call LPR service");
+            throw;
+        }
     }
 }

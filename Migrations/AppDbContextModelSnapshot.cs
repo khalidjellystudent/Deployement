@@ -97,6 +97,9 @@ namespace TicketSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("VoiceReportPath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Ticket_Id");
 
                     b.HasIndex("Email");

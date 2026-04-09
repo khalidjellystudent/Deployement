@@ -2,109 +2,353 @@
     ViewData["Title"] = "مركز المساعدة";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<link href="~/css/site.css" rel="stylesheet" />
-<script src="~/js/help.js"></script>
-<!-- Help Center Section -->
-<section class="help-center">
-<p class="text-center text-blue-800"> needs working and updated depending on the issues the users have</p>
-    <div class="container">
-        <!-- Header -->
-        <div class="help-header">
-            <div class="help-icon">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z" />
-                    <path d="M11 11h2v6h-2zm0-4h2v2h-2z" />
-                </svg>
-            </div>
-            <h1>مركز المساعدة</h1>
-            <p>ابحث عن إجابات للأسئلة الشائعة أو تواصل مع فريق الدعم</p>
 
-            <!-- Search Box -->
-            <div class="search-box">
-                <input type="text" placeholder="ابحث في الأسئلة الشائعة...">
-                <button>
-                    <svg viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+@section Styles {
+    <style>
+        :root {
+            --help-white: #ffffff;
+            --help-gray-900: #2f3338;
+            --help-gray-700: #59606a;
+            --help-gray-300: #d7dbe0;
+            --help-gray-100: #f3f4f6;
+            --help-brown-300: #c5af93;
+            --help-brown-100: #f3ece3;
+        }
+
+        .help-page {
+            min-height: calc(100vh - 200px);
+            background:
+                radial-gradient(circle at 80% 8%, rgba(197, 175, 147, 0.16), transparent 34%),
+                linear-gradient(180deg, var(--help-white) 0%, var(--help-gray-100) 100%);
+            padding: 2.5rem 1rem 3rem;
+        }
+
+        .help-wrap {
+            max-width: 1150px;
+            margin: 0 auto;
+        }
+
+        .help-hero,
+        .help-panel {
+            background: var(--help-white);
+            border: 1px solid var(--help-gray-300);
+            border-radius: 1rem;
+            box-shadow: 0 14px 28px rgba(47, 51, 56, 0.08), 0 3px 8px rgba(47, 51, 56, 0.06);
+        }
+
+        .help-hero {
+            padding: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .help-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: var(--help-brown-100);
+            border: 1px solid #e8ddcf;
+            color: var(--help-gray-900);
+            border-radius: 999px;
+            padding: 0.4rem 0.9rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .help-title {
+            margin: 0.9rem 0 0.7rem;
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+            color: var(--help-gray-900);
+            font-weight: 900;
+            line-height: 1.25;
+        }
+
+        .help-lead {
+            color: var(--help-gray-700);
+            line-height: 1.9;
+            max-width: 70ch;
+        }
+
+        .help-search {
+            margin-top: 1.1rem;
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .help-search input {
+            flex: 1;
+            min-width: 250px;
+            border: 1px solid var(--help-gray-300);
+            border-radius: 0.7rem;
+            padding: 0.72rem 0.9rem;
+            color: var(--help-gray-900);
+            background: var(--help-white);
+        }
+
+        .help-search input:focus {
+            border-color: var(--help-brown-300);
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(197, 175, 147, 0.26);
+        }
+
+        .help-search button {
+            border: 1px solid var(--help-gray-900);
+            background: var(--help-gray-900);
+            color: var(--help-white);
+            border-radius: 0.7rem;
+            padding: 0.72rem 1.1rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .help-search button:hover {
+            transform: translateY(-1px);
+        }
+
+        .help-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+        }
+
+        .help-panel {
+            overflow: hidden;
+        }
+
+        .panel-head {
+            background: linear-gradient(90deg, #f7f2ec 0%, #f1e8dc 100%);
+            border-bottom: 1px solid var(--help-gray-300);
+            color: var(--help-gray-900);
+            font-size: 1.1rem;
+            font-weight: 800;
+            padding: 1rem 1.2rem;
+        }
+
+        .faq-item {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid #eceff2;
+        }
+
+        .faq-item:last-child {
+            border-bottom: 0;
+        }
+
+        .faq-question {
+            width: 100%;
+            background: none;
+            border: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-align: right;
+            color: var(--help-gray-900);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .faq-question svg {
+            width: 1.2rem;
+            height: 1.2rem;
+            fill: var(--help-gray-700);
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .faq-answer {
+            display: none;
+            margin-top: 0.7rem;
+            color: var(--help-gray-700);
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .faq-answer ul,
+        .faq-answer ol {
+            margin: 0.45rem 0 0;
+            padding-right: 1rem;
+        }
+
+        .support-list {
+            padding: 1rem 1.2rem;
+        }
+
+        .support-item {
+            display: flex;
+            gap: 0.7rem;
+            align-items: flex-start;
+            padding: 0.8rem;
+            border: 1px solid #eceff2;
+            border-radius: 0.75rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .support-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .support-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.55rem;
+            background: var(--help-brown-100);
+            color: var(--help-gray-900);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .support-title {
+            color: var(--help-gray-900);
+            font-weight: 800;
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .support-text {
+            color: var(--help-gray-700);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            word-break: break-word;
+        }
+
+        @@media (max-width: 900px) {
+            .help-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 640px) {
+            .help-page {
+                padding-top: 1.7rem;
+            }
+
+            .help-hero,
+            .panel-head,
+            .faq-item,
+            .support-list {
+                padding-left: 0.9rem;
+                padding-right: 0.9rem;
+            }
+
+            .help-search {
+                flex-direction: column;
+            }
+
+            .help-search input,
+            .help-search button {
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+<section class="help-page" id="main-content">
+    <div class="help-wrap">
+        <header class="help-hero">
+            <span class="help-chip">
+                <i class="fas fa-life-ring" aria-hidden="true"></i>
+                مركز الخدمة والدعم
+            </span>
+            <h1 class="help-title">مركز المساعدة</h1>
+            <p class="help-lead">ابحث عن إجابات للأسئلة الأكثر شيوعاً أو تواصل مباشرة مع فريق الدعم في حال احتجت مساعدة إضافية.</p>
+
+            <div class="help-search">
+                <input type="text" placeholder="ابحث في الأسئلة الشائعة..." aria-label="البحث في الأسئلة الشائعة" />
+                <button type="button">
+                    <i class="fas fa-search ml-1" aria-hidden="true"></i>
+                    بحث
                 </button>
             </div>
-        </div>
+        </header>
 
-        <!-- Main Content -->
-        <div class="help-content">
-            <!-- FAQ Section -->
-            <div class="faq-section">
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2>الأسئلة الشائعة</h2>
-                    </div>
+        <div class="help-grid">
+            <article class="help-panel">
+                <h2 class="panel-head">الأسئلة الشائعة</h2>
 
-                    <!-- FAQ Accordion -->
-                    <div class="faq-accordion">
-                        <!-- FAQ Item 1 -->
-                        <div class="faq-item">
-                            <button class="faq-question" onclick="toggleFAQ(1)">
-                                <span>كيف يمكنني استعادة كلمة المرور؟</span>
-                                <svg id="icon-1" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div id="content-1" class="faq-answer">
-                                <p>لإستعادة كلمة المرور:</p>
-                                <ol>
-                                    <li>التوجه الى أقرب قسم مرور مع احضار رخصة القيادة </li>
-                                    
-                                </ol>
-                            </div>
-                        </div>
-
-                        <!-- FAQ Item 2 -->
-                        <div class="faq-item">
-                            <button class="faq-question" onclick="toggleFAQ(2)">
-                                <span>كيف أستعلم عن مخالفة مرورية؟</span>
-                                <svg id="icon-2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div id="content-2" class="faq-answer">
-                                <p>يمكنك الاستعلام عن المخالفات المرورية عبر:</p>
-                                <ul>
-                                    <li>تطبيق الهاتف الذكي الخاص بنا قريبا </li>
-                                    <li>الموقع الإلكتروني : قم بتسجيل الدخول  "</li>
-                                    <li>مراجعة أقرب فرع مروري</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Contact & Resources -->
-            <div class="side-section">
-                <!-- Contact Card -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <h2>تواصل معنا</h2>
-                    </div>
-                    <div class="contact-methods">
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3>البريد الإلكتروني</h3>
-                                <p>khalidjelly2001@gmail.com</p>
-                            </div>
-                        </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFAQ(1)">
+                        <span>كيف يمكنني استعادة كلمة المرور؟</span>
+                        <svg id="icon-1" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M7 10l5 5 5-5" />
+                        </svg>
+                    </button>
+                    <div id="content-1" class="faq-answer">
+                        <p>لاستعادة كلمة المرور:</p>
+                        <ol>
+                            <li>التوجه إلى أقرب قسم مرور.</li>
+                            <li>إحضار رخصة القيادة أو وثيقة إثبات الهوية الرسمية.</li>
+                            <li>طلب إعادة تفعيل الحساب من الموظف المختص.</li>
+                        </ol>
                     </div>
                 </div>
 
-            </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFAQ(2)">
+                        <span>كيف أستعلم عن مخالفة مرورية؟</span>
+                        <svg id="icon-2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M7 10l5 5 5-5" />
+                        </svg>
+                    </button>
+                    <div id="content-2" class="faq-answer">
+                        <p>يمكنك الاستعلام عبر:</p>
+                        <ul>
+                            <li>بوابة الموقع الإلكتروني بعد تسجيل الدخول.</li>
+                            <li>مراجعة أقرب فرع مروري عند الحاجة.</li>
+                            <li>التطبيق الذكي عند توفره مستقبلاً.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFAQ(3)">
+                        <span>متى يتم تحديث حالة المخالفة بعد الدفع؟</span>
+                        <svg id="icon-3" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M7 10l5 5 5-5" />
+                        </svg>
+                    </button>
+                    <div id="content-3" class="faq-answer">
+                        <p>عادة يتم تحديث حالة المخالفة خلال فترة قصيرة بعد الدفع الإلكتروني. في حال التأخر، يرجى التواصل مع الدعم مع رقم العملية.</p>
+                    </div>
+                </div>
+            </article>
+
+            <aside class="help-panel">
+                <h2 class="panel-head">قنوات التواصل</h2>
+
+                <div class="support-list">
+                    <div class="support-item">
+                        <span class="support-icon"><i class="fas fa-envelope" aria-hidden="true"></i></span>
+                        <div>
+                            <div class="support-title">البريد الإلكتروني</div>
+                            <div class="support-text">khalidjelly2001@gmail.com</div>
+                        </div>
+                    </div>
+
+                    <div class="support-item">
+                        <span class="support-icon"><i class="fas fa-phone" aria-hidden="true"></i></span>
+                        <div>
+                            <div class="support-title">هاتف الدعم</div>
+                            <div class="support-text">(555) 123-4567</div>
+                        </div>
+                    </div>
+
+                    <div class="support-item">
+                        <span class="support-icon"><i class="fas fa-clock" aria-hidden="true"></i></span>
+                        <div>
+                            <div class="support-title">ساعات العمل</div>
+                            <div class="support-text">الأحد - الخميس | 8:00 ص - 4:00 م</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
 </section>
 
-<!-- JavaScript File -->
-<script src="~/js/help.js"></script>
+@section Scripts {
+    <script src="~/js/help.js"></script>
+}

@@ -21,6 +21,8 @@ namespace TicketSystem.Models
         public bool Appealed { get; set; } = false;
         public decimal FineAmount { get; set; }
 
+        public string? VoiceReportPath { get; set; }
+
         [ForeignKey("Users")]
         public string Email { get; set; } = "";
         public User Users { get; set; }=  null!;

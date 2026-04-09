@@ -24,7 +24,7 @@
                     </div>
                 }
 
-                <form id="issueTicketForm" asp-action="WritingTicket" method="post">
+                <form id="issueTicketForm" asp-action="WritingTicket" method="post" enctype="multipart/form-data">
                     <!-- رقم المخالفة (تلقائي) -->
                     <div class="mb-3" hidden>
                         <label class="form-label">رقم المخالفة</label>
@@ -60,18 +60,75 @@
                         <span asp-validation-for="Violation_Place" class="text-danger"></span>
                     </div>
 
-                    <!-- رقم اللوحة -->
+                    <!-- رقم اللوحة + التقاط الكاميرا -->
                     <div class="mb-3">
                         <label asp-for="Plate_Number" class="form-label">رقم اللوحة</label>
-                        <input asp-for="Plate_Number" class="form-control" id="Plate_Number" placeholder="1234" required />
+                        <div class="input-group">
+                            <input asp-for="Plate_Number" class="form-control" id="Plate_Number" placeholder="1234" required />
+                            <button type="button" class="btn btn-outline-primary" id="btnCapturePlate">
+                                <i class="fas fa-camera me-1"></i>التقاط والتعرف
+                            </button>
+                        </div>
+                        <div class="form-text">سيفتح الكاميرا ويلتقط لقطة واحدة ويرسلها لخدمة التعرف على اللوحات.</div>
                         <span asp-validation-for="Plate_Number" class="text-danger"></span>
+
+                        <div id="lpr-camera" class="mt-3 border rounded p-3" style="display:none;">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <div class="fw-semibold">الكاميرا المباشرة</div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnStartCamera">
+                                        <i class="fas fa-play me-1"></i>تشغيل
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnStopCamera">
+                                        <i class="fas fa-stop me-1"></i>إيقاف
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <video id="lprVideo" class="w-100 rounded border" autoplay playsinline muted style="max-height:280px;"></video>
+                            </div>
+                            <div id="lprStatus" class="form-text mt-2"></div>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="fw-semibold mb-1">رفع صورة للتعرف</div>
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="lprUpload" accept="image/*" aria-label="رفع صورة لوحة" />
+                                <button type="button" class="btn btn-outline-primary" id="btnUploadLpr">
+                                    <i class="fas fa-upload me-1"></i>رفع والتعرف
+                                </button>
+                            </div>
+                            <div class="form-text">مسموح برفع الصور فقط؛ لن يتم قبول أي ملفات أخرى.</div>
+                        </div>
                     </div>
 
-                    <!-- تقرير المخالفة -->
+                    <!-- تقرير المخالفة النصي -->
                     <div class="mb-3">
                         <label asp-for="Notes" class="form-label" >ملاحظات</label>
                         <input asp-for="Notes" class="form-control" placeholder="ملاحظات حول إصدار المخالفة" required />
                         <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+
+                    <!-- تقرير صوتي (اختياري) -->
+                    <div class="mb-3">
+                        <label class="form-label">تقرير صوتي للضابط (اختياري)</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" name="voiceReport" id="voiceReport" accept="audio/*" />
+                            <button type="button" class="btn btn-outline-secondary" id="btnPreviewAudio">معاينة</button>
+                        </div>
+                        <div class="d-flex gap-2 mt-2 flex-wrap">
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="btnStartRecord">
+                                <i class="fas fa-microphone me-1"></i>بدء التسجيل
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" id="btnStopRecord" disabled>
+                                <i class="fas fa-stop me-1"></i>إيقاف وحفظ
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearAudio">
+                                <i class="fas fa-trash me-1"></i>مسح الملف
+                            </button>
+                        </div>
+                        <div id="audioStatus" class="form-text"></div>
+                        <audio id="audioPreview" class="mt-2 w-100" controls style="display:none;"></audio>
                     </div>
 
                     <!-- قائمة أنواع المخالفات -->
@@ -139,6 +196,29 @@
             const form = document.getElementById("issueTicketForm");
             const errorMsg = document.getElementById("violation-error");
 
+            // LPR elements
+            const plateInput = document.getElementById("Plate_Number");
+            const btnCapturePlate = document.getElementById("btnCapturePlate");
+            const btnStartCamera = document.getElementById("btnStartCamera");
+            const btnStopCamera = document.getElementById("btnStopCamera");
+            const btnUploadLpr = document.getElementById("btnUploadLpr");
+            const lprUpload = document.getElementById("lprUpload");
+            const lprWrapper = document.getElementById("lpr-camera");
+            const lprVideo = document.getElementById("lprVideo");
+            const lprStatus = document.getElementById("lprStatus");
+            const antiForgery = form?.querySelector('input[name="__RequestVerificationToken"]');
+            const lprCanvas = document.createElement("canvas");
+            let lprStream = null;
+            const voiceInput = document.getElementById("voiceReport");
+            const btnPreviewAudio = document.getElementById("btnPreviewAudio");
+            const audioPreview = document.getElementById("audioPreview");
+            const audioStatus = document.getElementById("audioStatus");
+            const btnStartRecord = document.getElementById("btnStartRecord");
+            const btnStopRecord = document.getElementById("btnStopRecord");
+            const btnClearAudio = document.getElementById("btnClearAudio");
+            let mediaRecorder = null;
+            let recordedChunks = [];
+
             // GPS helpers
             const btnGps = document.getElementById("btnUseGps");
             const placeInput = document.getElementById("Violation_Place");
@@ -150,6 +230,34 @@
                 gpsStatus.classList.remove(...classes);
                 gpsStatus.classList.add(`text-${type}`);
                 gpsStatus.textContent = message || "";
+            }
+
+            function setLprStatus(message, type = "muted") {
+                if (!lprStatus) return;
+                const classes = ["text-muted", "text-success", "text-warning", "text-danger", "text-info"];
+                lprStatus.classList.remove(...classes);
+                lprStatus.classList.add(`text-${type}`);
+                lprStatus.textContent = message || "";
+            }
+
+            function setAudioStatus(message, type = "muted") {
+                if (!audioStatus) return;
+                const classes = ["text-muted", "text-success", "text-warning", "text-danger", "text-info"];
+                audioStatus.classList.remove(...classes);
+                audioStatus.classList.add(`text-${type}`);
+                audioStatus.textContent = message || "";
+            }
+
+            function clearAudioSelection() {
+                if (voiceInput) {
+                    voiceInput.value = "";
+                }
+                if (audioPreview) {
+                    audioPreview.pause();
+                    audioPreview.removeAttribute("src");
+                    audioPreview.style.display = "none";
+                }
+                setAudioStatus("تم مسح الملف الصوتي.", "muted");
             }
 
             function useCurrentLocation() {
@@ -192,6 +300,44 @@
 
             btnGps?.addEventListener("click", useCurrentLocation);
 
+            async function startCamera() {
+                if (!lprWrapper) return;
+                lprWrapper.style.display = "block";
+
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    setLprStatus("المتصفح لا يدعم تشغيل الكاميرا.", "danger");
+                    return;
+                }
+
+                if (lprStream) {
+                    setLprStatus("الكاميرا جاهزة.", "success");
+                    return;
+                }
+
+                try {
+                    setLprStatus("جاري تشغيل الكاميرا...", "info");
+                    lprStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                    lprVideo.srcObject = lprStream;
+                    setLprStatus("الكاميرا تعمل. اضغط التقاط للتعرف.", "success");
+                }
+                catch (err) {
+                    setLprStatus("تعذر تشغيل الكاميرا: " + err.message, "danger");
+                }
+            }
+
+            function stopCamera(keepStatus = false) {
+                if (lprStream) {
+                    lprStream.getTracks().forEach(t => t.stop());
+                    lprStream = null;
+                }
+                if (lprVideo) {
+                    lprVideo.srcObject = null;
+                }
+                if (!keepStatus) {
+                    setLprStatus("تم إيقاف الكاميرا.", "muted");
+                }
+            }
+
             function updateFineAmount() {
                 let total = 0;
                 checkboxes.forEach(cb => {
@@ -207,6 +353,118 @@
                 cb.addEventListener("change", updateFineAmount);
             });
 
+            async function captureAndRecognize() {
+                if (!btnCapturePlate) return;
+
+                lprWrapper?.style.setProperty("display", "block");
+                await startCamera();
+                if (!lprStream || !lprVideo || !lprCanvas) return;
+
+                const originalLabel = btnCapturePlate.innerHTML;
+                btnCapturePlate.disabled = true;
+                btnCapturePlate.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>جارٍ التعرف...';
+                setLprStatus("جارٍ التقاط صورة وإرسالها للتعرف...", "info");
+
+                lprCanvas.width = lprVideo.videoWidth || 640;
+                lprCanvas.height = lprVideo.videoHeight || 480;
+                const ctx = lprCanvas.getContext("2d");
+                ctx.drawImage(lprVideo, 0, 0, lprCanvas.width, lprCanvas.height);
+
+                lprCanvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        setLprStatus("تعذر إنشاء الصورة الملتقطة.", "danger");
+                        btnCapturePlate.disabled = false;
+                        btnCapturePlate.innerHTML = originalLabel;
+                        stopCamera(true);
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append("file", blob, "frame.jpg");
+                    if (antiForgery) formData.append(antiForgery.name, antiForgery.value);
+
+                    try {
+                        const resp = await fetch("@Url.Action("RecognizeFrame", "Lpr")", { method: "POST", body: formData });
+                        const data = await resp.json();
+
+                        if (!resp.ok) {
+                            const detail = data?.error || data?.detail || "تعذر التعرف على اللوحة.";
+                            throw new Error(detail);
+                        }
+
+                        if (data?.plate) {
+                            plateInput.value = data.plate.toUpperCase();
+                            const confidenceText = typeof data?.confidencePercentage === "number"
+                                ? ` (نسبة الثقة: ${data.confidencePercentage.toFixed(2)}%)`
+                                : "";
+                            setLprStatus("تم ملء رقم اللوحة تلقائياً: " + data.plate + confidenceText, "success");
+                        }
+                        else {
+                            setLprStatus("لم يتم العثور على لوحة في اللقطة، حاول مرة أخرى.", "warning");
+                        }
+                    }
+                    catch (err) {
+                        setLprStatus("فشل التعرف: " + err.message, "danger");
+                    }
+                    finally {
+                        btnCapturePlate.disabled = false;
+                        btnCapturePlate.innerHTML = originalLabel;
+                        stopCamera(true); // release webcam and keep recognition result text visible
+                    }
+                }, "image/jpeg", 0.9);
+            }
+
+            async function uploadAndRecognize() {
+                if (!lprUpload || !lprUpload.files?.length) {
+                    setLprStatus("يرجى اختيار صورة للوحة.", "warning");
+                    return;
+                }
+
+                const file = lprUpload.files[0];
+                if (!file.type || !file.type.startsWith("image/")) {
+                    setLprStatus("فقط صور اللوحات مسموح بها.", "danger");
+                    lprUpload.value = "";
+                    return;
+                }
+
+                const originalLabel = btnUploadLpr.innerHTML;
+                btnUploadLpr.disabled = true;
+                btnUploadLpr.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>جارٍ التعرف...';
+                setLprStatus("جارٍ إرسال الصورة للتعرف...", "info");
+
+                const formData = new FormData();
+                formData.append("file", file);
+                if (antiForgery) formData.append(antiForgery.name, antiForgery.value);
+
+                try {
+                    const resp = await fetch("@Url.Action("RecognizeFrame", "Lpr")", { method: "POST", body: formData });
+                    const data = await resp.json();
+
+                    if (!resp.ok) {
+                        const detail = data?.error || data?.detail || "تعذر التعرف على اللوحة.";
+                        throw new Error(detail);
+                    }
+
+                    if (data?.plate) {
+                        plateInput.value = data.plate.toUpperCase();
+                        const confidenceText = typeof data?.confidencePercentage === "number"
+                            ? ` (نسبة الثقة: ${data.confidencePercentage.toFixed(2)}%)`
+                            : "";
+                        setLprStatus("تم ملء رقم اللوحة تلقائياً: " + data.plate + confidenceText, "success");
+                    }
+                    else {
+                        setLprStatus("لم يتم العثور على لوحة في الصورة.", "warning");
+                    }
+                }
+                catch (err) {
+                    setLprStatus("فشل التعرف: " + err.message, "danger");
+                }
+                finally {
+                    btnUploadLpr.disabled = false;
+                    btnUploadLpr.innerHTML = originalLabel;
+                }
+            }
+
             if (form) {
                 form.addEventListener("submit", function (e) {
                     const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
@@ -218,6 +476,77 @@
                     }
                 });
             }
+
+            btnCapturePlate?.addEventListener("click", captureAndRecognize);
+            btnStartCamera?.addEventListener("click", startCamera);
+            btnStopCamera?.addEventListener("click", stopCamera);
+            btnUploadLpr?.addEventListener("click", uploadAndRecognize);
+
+            btnPreviewAudio?.addEventListener("click", function () {
+                if (!voiceInput || !voiceInput.files?.length) {
+                    setAudioStatus("يرجى اختيار ملف صوتي للمعاينة.", "warning");
+                    return;
+                }
+                const file = voiceInput.files[0];
+                if (!file.type || !file.type.startsWith("audio/")) {
+                    setAudioStatus("يُسمح بملفات الصوت فقط.", "danger");
+                    voiceInput.value = "";
+                    audioPreview.style.display = "none";
+                    audioPreview.removeAttribute("src");
+                    return;
+                }
+                const url = URL.createObjectURL(file);
+                audioPreview.src = url;
+                audioPreview.style.display = "block";
+                audioPreview.play().catch(() => {});
+                setAudioStatus("تم تجهيز المعاينة.", "success");
+            });
+
+            btnClearAudio?.addEventListener("click", clearAudioSelection);
+
+            btnStartRecord?.addEventListener("click", async function () {
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    setAudioStatus("المتصفح لا يدعم تسجيل الصوت.", "danger");
+                    return;
+                }
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    recordedChunks = [];
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) recordedChunks.push(e.data);
+                    };
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: "audio/webm" });
+                        const file = new File([blob], "voiceReport.webm", { type: "audio/webm" });
+                        const dt = new DataTransfer();
+                        dt.items.add(file);
+                        voiceInput.files = dt.files;
+                        const url = URL.createObjectURL(blob);
+                        audioPreview.src = url;
+                        audioPreview.style.display = "block";
+                        audioPreview.play().catch(() => {});
+                        setAudioStatus("تم حفظ التسجيل ويمكن معاينته.", "success");
+                    };
+                    mediaRecorder.start();
+                    setAudioStatus("جاري التسجيل... اضغط إيقاف لحفظ الملف.", "info");
+                    btnStartRecord.disabled = true;
+                    btnStopRecord.disabled = false;
+                } catch (err) {
+                    setAudioStatus("تعذر بدء التسجيل: " + err.message, "danger");
+                }
+            });
+
+            btnStopRecord?.addEventListener("click", function () {
+                if (mediaRecorder && mediaRecorder.state === "recording") {
+                    mediaRecorder.stop();
+                    mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                }
+                btnStartRecord.disabled = false;
+                btnStopRecord.disabled = true;
+            });
+
+            window.addEventListener("beforeunload", stopCamera);
 
             updateFineAmount();
         });

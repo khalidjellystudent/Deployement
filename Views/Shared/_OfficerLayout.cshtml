@@ -573,7 +573,7 @@
                 <a asp-controller="Home" asp-action="Index" class="logo-text no-underline titlee officer-brand-link">نظام المخالفات المرورية : فرع الجفرة</a>
             </div>
             <!-- Mobile nav toggle (visible on smaller screens) -->
-            <button id="navToggle" class="nav-toggle" aria-expanded="false" aria-controls="officerNav" title="قائمة">
+            <button id="navToggle" class="nav-toggle" type="button" aria-expanded="false" aria-controls="officerNav" aria-label="فتح أو إغلاق قائمة التنقل" title="قائمة">
                 <i class="fas fa-bars" aria-hidden="true"></i>
             </button>
 
@@ -633,12 +633,15 @@
             const toggle = document.getElementById('navToggle');
             const backdrop = document.getElementById('officerNavBackdrop');
             const navLinks = nav ? nav.querySelectorAll('a') : [];
+            const mobileQuery = window.matchMedia('(max-width: 992px)');
+
+            const isMobile = () => mobileQuery.matches;
 
             // Mark active links safely
             navLinks.forEach(link => {
                 const linkUrl = link.getAttribute('href') || '';
                 try {
-                    if (linkUrl && currentUrl.includes(linkUrl) && linkUrl !== '/') {
+                    if (linkUrl && linkUrl !== '/' && currentUrl.startsWith(linkUrl)) {
                         link.classList.add('active');
                     }
                 } catch (e) {
@@ -646,53 +649,91 @@
                 }
             });
 
-            // If home route, try to mark officer dashboard link as active (safe-guarded)
-            if (currentUrl === '/' || currentUrl === '/Home' || currentUrl === '/Home/Index') {
-                const homeLink = document.querySelector('a[asp-controller="Home"][asp-action="Index"]');
-                if (homeLink) homeLink.classList.add('active');
+            if (!toggle || !nav) {
+                return;
             }
 
-            // Toggle nav visibility on small screens
-            if (toggle && nav) {
-                const openNav = () => {
-                    nav.classList.add('open');
-                    toggle.setAttribute('aria-expanded', 'true');
-                    if (backdrop) backdrop.classList.add('show');
-                    document.body.style.overflow = 'hidden';
-                };
-                const closeNav = () => {
-                    nav.classList.remove('open');
-                    toggle.setAttribute('aria-expanded', 'false');
-                    if (backdrop) backdrop.classList.remove('show');
-                    document.body.style.overflow = '';
-                };
-
-                toggle.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    if (nav.classList.contains('open')) closeNav(); else openNav();
-                });
-
-                // Close when clicking a link inside nav (mobile)
-                navLinks.forEach(link => link.addEventListener('click', () => {
-                    if (window.innerWidth <= 992) closeNav();
-                }));
-
-                // Close when clicking outside nav
-                document.addEventListener('click', function(e) {
-                    if (!nav.contains(e.target) && !toggle.contains(e.target)) {
-                        closeNav();
-                    }
-                });
-
-                // Close when clicking backdrop
-                if (backdrop) {
-                    backdrop.addEventListener('click', closeNav);
+            const openNav = () => {
+                if (!isMobile()) {
+                    return;
                 }
 
-                // Close nav when resizing to desktop
-                window.addEventListener('resize', function() {
-                    if (window.innerWidth > 992) closeNav();
-                });
+                nav.classList.add('open');
+                toggle.setAttribute('aria-expanded', 'true');
+                if (backdrop) {
+                    backdrop.classList.add('show');
+                    backdrop.setAttribute('aria-hidden', 'false');
+                }
+                document.body.style.overflow = 'hidden';
+            };
+
+            const closeNav = () => {
+                nav.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+                if (backdrop) {
+                    backdrop.classList.remove('show');
+                    backdrop.setAttribute('aria-hidden', 'true');
+                }
+                document.body.style.overflow = '';
+            };
+
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                if (nav.classList.contains('open')) {
+                    closeNav();
+                } else {
+                    openNav();
+                }
+            });
+
+            // Close when clicking any actionable item inside nav (mobile)
+            nav.addEventListener('click', function(e) {
+                if (!isMobile()) {
+                    return;
+                }
+
+                const clickedLink = e.target.closest('a');
+                const clickedButton = e.target.closest('button');
+                if (clickedLink || clickedButton) {
+                    closeNav();
+                }
+            });
+
+            // Close when clicking outside nav
+            document.addEventListener('click', function(e) {
+                if (!isMobile()) {
+                    return;
+                }
+
+                if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+                    closeNav();
+                }
+            });
+
+            // Close when pressing Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && nav.classList.contains('open')) {
+                    closeNav();
+                }
+            });
+
+            // Close when clicking backdrop
+            if (backdrop) {
+                backdrop.addEventListener('click', closeNav);
+            }
+
+            // Keep nav state in sync when breakpoint changes
+            const handleViewportChange = () => {
+                if (!isMobile()) {
+                    closeNav();
+                }
+            };
+
+            if (typeof mobileQuery.addEventListener === 'function') {
+                mobileQuery.addEventListener('change', handleViewportChange);
+            } else {
+                window.addEventListener('resize', handleViewportChange);
             }
         });
     </script>

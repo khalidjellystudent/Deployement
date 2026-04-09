@@ -1,4 +1,4 @@
-/* Officer layout enhancements (scoped, RTL-friendly)
+/* Officer layout enhancements (scoped, RTL-friendly) */
 :root {
   --officer-shadow: 0 10px 30px rgba(0,0,0,0.12);
 }
@@ -37,9 +37,9 @@
 .officer-nav-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(2px);
-  z-index: 1100;
+  background: rgba(0,0,0,0.22);
+  backdrop-filter: none;
+  z-index: 990;
   opacity: 0;
   pointer-events: none;
   transition: opacity 200ms ease;

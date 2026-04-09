@@ -23,58 +23,66 @@
         <!-- Body -->
         <div class="card-body">
             @{ var ticketUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Ticket/Open/{Model.Ticket_Id}"; var qrDataUri = QrService.GeneratePngDataUri(ticketUrl, 10); }
-            <div class="row">
+            <div class="row ticket-details-layout">
                 <div class="col-12">
-                    <h6 class="text-muted mb-3">معلومات المخالفة</h6>
-                    <div class="mb-3">
+                    <h6 class="text-muted mb-2">معلومات المخالفة</h6>
+                    <div class="mb-2 ticket-field">
                         <p class="fw-bold mb-1">نوع المخالفة</p>
                         <p>@Model.Violations</p>
                     </div>
 
-                    <div class="row">
+                    <div class="row gx-2 gy-2 ticket-compact-grid">
                         <div class="col-md-6 col-12">
-                            <p class="fw-bold mb-1">رقم اللوحة</p>
-                            <p>@Model.Plate_Number</p>
+                            <div class="ticket-field compact">
+                                <p class="fw-bold mb-1">رقم اللوحة</p>
+                                <p>@Model.Plate_Number</p>
+                            </div>
                         </div>
                         <div class="col-md-6 col-12">
-                            <p class="fw-bold mb-1">موقع المخالفة</p>
-                            <p>@Model.Violation_Place</p>
-                        </div>
-                    </div>
-
-                    <hr class="my-3">
-
-                    <h6 class="text-muted mb-3">تفاصيل المخالفة</h6>
-                    <div class="row">
-                        <div class="col-md-6 col-12">
-                            <p class="fw-bold mb-1">تاريخ الإصدار</p>
-                            <p>@Model.Ticket_Time.ToString("dd/MM/yyyy HH:mm")</p>
-                        </div>
-                        <div class="col-md-6 col-12">
-                            <p class="fw-bold mb-1">تاريخ الاستحقاق</p>
-                            <p class="@(Model.Due_Date < DateTime.Now ? "text-danger" : "")">
-                                @Model.Due_Date.ToString("dd/MM/yyyy")
-                            </p>
+                            <div class="ticket-field compact">
+                                <p class="fw-bold mb-1">موقع المخالفة</p>
+                                <p>@Model.Violation_Place</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <hr class="my-2">
+
+                    <h6 class="text-muted mb-2">تفاصيل المخالفة</h6>
+                    <div class="row gx-2 gy-2 ticket-compact-grid">
+                        <div class="col-md-6 col-12">
+                            <div class="ticket-field compact">
+                                <p class="fw-bold mb-1">تاريخ الإصدار</p>
+                                <p>@Model.Ticket_Time.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <div class="ticket-field compact">
+                                <p class="fw-bold mb-1">تاريخ الاستحقاق</p>
+                                <p class="@(Model.Due_Date < DateTime.Now ? "text-danger" : "")">
+                                    @Model.Due_Date.ToString("dd/MM/yyyy")
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2 ticket-field">
                         <p class="fw-bold mb-1">صادر بواسطة</p>
                         <p>@Model.IssuedBy</p>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-2 ticket-field">
                         <p class="fw-bold mb-1">ملاحظات</p>
                         <p class="text-muted">
                             @(string.IsNullOrEmpty(Model.Notes) ? "لا توجد ملاحظات إضافية" : Model.Notes)
                         </p>
                     </div>
 
-                    <div class="mt-4 d-flex align-items-center gap-3">
+                    <div class="mt-3 d-flex align-items-center gap-3 ticket-qr-block">
                         <div>
-                            <img src="@qrDataUri" alt="QR" style="width:160px;height:160px;border:1px solid #eaeaea;padding:6px;background:#fff;border-radius:6px;" />
+                            <img src="@qrDataUri" alt="QR" class="ticket-qr-image" />
                         </div>
-                        <div>
+                        <div class="ticket-qr-copy">
                             <p class="mb-1 fw-bold">امسح لمشاهدة تفاصيل المخالفة</p>
                             <small class="text-muted">سيفتح الرابط: @ticketUrl</small>
                         </div>
@@ -85,7 +93,7 @@
 
         <!-- Footer -->
         <div class="card-footer bg-white border-top text-center">
-            <div class="d-flex flex-wrap gap-2 justify-content-between">
+            <div class="d-flex flex-wrap gap-2 justify-content-between ticket-footer-actions">
                 <a asp-action="Index" class="btn btn-outline-primary flex-fill">
                     <i class="fas fa-arrow-left ms-1"></i> العودة إلى المخالفات
                 </a>
@@ -113,15 +121,136 @@
 </div>
 
 <style>
-    /* Mobile-first button fix */
-    @@media (max-width: 576px) {
-        .card-footer .btn
-
-    {
-        width: 100% !important;
+    .ticket-details-layout {
+        margin-inline: 0;
     }
 
-    }</style>
+    .ticket-field p:last-child {
+        margin-bottom: 0;
+    }
+
+    .ticket-qr-image {
+        width: 160px;
+        height: 160px;
+        border: 1px solid #eaeaea;
+        padding: 6px;
+        background: #fff;
+        border-radius: 6px;
+        max-width: 100%;
+    }
+
+    .card-footer .d-flex {
+        gap: 0.5rem;
+    }
+
+        .ticket-footer-actions > * {
+            min-width: 0;
+        }
+
+    @@media (max-width: 768px) {
+        .container[dir="rtl"] {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        .card-body {
+            padding: 0.75rem;
+        }
+
+        .card-header {
+            padding: 0.75rem 1rem;
+        }
+
+        .card-header .d-flex {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .card-header .badge {
+            margin-inline-start: 0 !important;
+        }
+
+        .ticket-compact-grid > div {
+            padding-inline: 0.25rem;
+        }
+
+        .ticket-field {
+            margin-bottom: 0.5rem;
+        }
+
+        .ticket-field p {
+            font-size: 0.95rem;
+            line-height: 1.35;
+            margin-bottom: 0.25rem;
+        }
+
+        .ticket-qr-block {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 0.75rem !important;
+            margin-top: 0.75rem !important;
+        }
+
+        .ticket-qr-image {
+            width: 96px !important;
+            height: 96px !important;
+            padding: 4px;
+        }
+
+        .ticket-footer-actions {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 0.25rem !important;
+            justify-content: space-between !important;
+            align-items: stretch;
+        }
+
+        .ticket-footer-actions > * {
+            flex: 1 1 0;
+            width: 0 !important;
+        }
+
+        .card-footer .btn,
+        .card-footer form .btn {
+            width: 100% !important;
+            white-space: normal;
+            padding: 0.3rem 0.35rem;
+            min-height: 34px;
+            font-size: 0.76rem;
+            line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-footer .btn i,
+        .card-footer form .btn i {
+            font-size: 0.75rem;
+            margin-inline-start: 0 !important;
+        }
+    }
+
+    @@media (max-width: 380px) {
+        .ticket-footer-actions {
+            gap: 0.18rem !important;
+        }
+
+        .card-footer .btn,
+        .card-footer form .btn {
+            padding: 0.25rem 0.25rem;
+            min-height: 32px;
+            font-size: 0.7rem;
+        }
+
+        .card-footer .btn i,
+        .card-footer form .btn i {
+            font-size: 0.68rem;
+        }
+    }
+</style>
 
 @functions {
     string GetStatusBadgeClass(string status)

@@ -9,7 +9,7 @@ using TicketSystem.Models;
 
 namespace TicketSystem.Controllers
 {
-     [Authorize(Roles = "Office")]
+     //[Authorize(Roles = "Office")]
     public class OfficeController : Controller
     {
         private readonly AppDbContext _db;
