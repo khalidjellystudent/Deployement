@@ -1,0 +1,44 @@
+@model TicketSystem.Models.Ticket
+
+@{
+    var plateLabel = ViewData["PlateLabel"] as string ?? "Plate Number";
+    var violationsLabel = ViewData["ViolationsLabel"] as string ?? "Violations";
+    var locationLabel = ViewData["LocationLabel"] as string ?? "Location";
+    var issuedOnLabel = ViewData["IssuedOnLabel"] as string ?? "Issued On";
+    var dueDateLabel = ViewData["DueDateLabel"] as string ?? "Due Date";
+    var issuedByLabel = ViewData["IssuedByLabel"] as string ?? "Issued By";
+    var evidenceLabel = ViewData["EvidenceLabel"] as string ?? "Evidence Image";
+}
+
+<dl class="row ticket-details-list mb-0">
+    <dt class="col-sm-4">@plateLabel</dt>
+    <dd class="col-sm-8">@Model.Plate_Number</dd>
+
+    <dt class="col-sm-4">@violationsLabel</dt>
+    <dd class="col-sm-8">@Model.Violations</dd>
+
+    <dt class="col-sm-4">@locationLabel</dt>
+    <dd class="col-sm-8">@Model.Violation_Place</dd>
+
+    <dt class="col-sm-4">@issuedOnLabel</dt>
+    <dd class="col-sm-8">@Model.Ticket_Time.ToString("f")</dd>
+
+    <dt class="col-sm-4">@dueDateLabel</dt>
+    <dd class="col-sm-8">@Model.Due_Date.ToShortDateString()</dd>
+
+    <dt class="col-sm-4">@issuedByLabel</dt>
+    <dd class="col-sm-8">@Model.IssuedBy</dd>
+</dl>
+
+@if (Model.EvidenceImageData != null)
+{
+    <div class="mt-3">
+        <label class="form-label fw-semibold">@evidenceLabel</label>
+        <div>
+            <img src="@Url.Action("EvidenceImage", "Ticket", new { id = Model.Ticket_Id })"
+                 alt="@evidenceLabel"
+                 class="img-fluid rounded border"
+                 style="max-height: 260px;" />
+        </div>
+    </div>
+}

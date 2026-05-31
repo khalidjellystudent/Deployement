@@ -91,9 +91,9 @@
                         </div>
 
                         <div class="mt-3">
-                            <div class="fw-semibold mb-1">رفع صورة للتعرف</div>
+                            <div class="fw-semibold mb-1">صورة المخالفة المطلوبة</div>
                             <div class="input-group">
-                                <input type="file" class="form-control" id="lprUpload" accept="image/*" aria-label="رفع صورة لوحة" />
+                                <input type="file" class="form-control" id="evidenceImage" name="evidenceImage" accept="image/*" aria-label="رفع صورة المخالفة" required />
                                 <button type="button" class="btn btn-outline-primary" id="btnUploadLpr">
                                     <i class="fas fa-upload me-1"></i>رفع والتعرف
                                 </button>
@@ -202,7 +202,7 @@
             const btnStartCamera = document.getElementById("btnStartCamera");
             const btnStopCamera = document.getElementById("btnStopCamera");
             const btnUploadLpr = document.getElementById("btnUploadLpr");
-            const lprUpload = document.getElementById("lprUpload");
+            const lprUpload = document.getElementById("evidenceImage");
             const lprWrapper = document.getElementById("lpr-camera");
             const lprVideo = document.getElementById("lprVideo");
             const lprStatus = document.getElementById("lprStatus");
@@ -379,8 +379,15 @@
                         return;
                     }
 
+                        const file = new File([blob], "evidence.jpg", { type: "image/jpeg" });
+                        const dt = new DataTransfer();
+                        dt.items.add(file);
+                        if (lprUpload) {
+                            lprUpload.files = dt.files;
+                        }
+
                     const formData = new FormData();
-                    formData.append("file", blob, "frame.jpg");
+                        formData.append("file", file);
                     if (antiForgery) formData.append(antiForgery.name, antiForgery.value);
 
                     try {

@@ -10,6 +10,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-logo-image {
+            width: 92px;
+            height: 92px;
+            object-fit: contain;
+            display: block;
+        }
+
         .sidebar {
             transition: all 0.3s;
         }
@@ -30,7 +43,13 @@
         /* Mobile: Hide sidebar by default */
         @@media (max-width: 768px) {
             .sidebar {
+                width: 86vw;
+                max-width: 320px;
+                top: 0;
+                bottom: 0;
                 transform: translateX(100%);
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
             }
 
             .sidebar.active {
@@ -48,11 +67,51 @@
             .overlay.active {
                 display: block;
             }
+
+            .mobile-menu-toggle {
+                display: inline-flex;
+            }
+
+            .main-content {
+                margin-right: 0 !important;
+            }
+
+            .admin-page-shell {
+                padding-top: 4.5rem;
+            }
+
+            .admin-main {
+                padding: 1rem !important;
+            }
+
+            .admin-footer {
+                padding-inline: 1rem !important;
+                padding-block: 1rem !important;
+            }
+
+            .admin-logo-image {
+                width: 76px;
+                height: 76px;
+            }
         }
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="bg-gray-50 font-sans">
+    @{
+        var unreadCount = 0;
+        try {
+            unreadCount = _db.Feedbacks.Count(f => !f.IsRead);
+        } catch {
+            unreadCount = 0;
+        }
+    }
+
+    <button id="menuBtn" onclick="toggleSidebar()" class="mobile-menu-toggle md:hidden fixed top-4 right-4 z-30 inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg">
+        <i class="fas fa-bars text-lg"></i>
+        <span class="sr-only">فتح القائمة</span>
+    </button>
+
     <div class="flex h-screen overflow-hidden relative">
         <!-- Mobile Overlay -->
         <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
@@ -61,7 +120,10 @@
     <div id="sidebar" class="sidebar bg-white w-64 h-full fixed shadow-lg z-20 right-0 transform transition-transform duration-300 md:translate-x-0 translate-x-full">
             <!-- Logo -->
             <div class="p-4 border-b border-gray-200">
-                <h1 class="text-xl font-bold text-blue-600">النظام الإداري</h1>
+                <div class="admin-logo">
+                    <img src="~/images/logo.png" alt="شعار النظام" class="admin-logo-image" />
+                    <h1 class="text-xl font-bold text-blue-600">النظام الإداري</h1>
+                </div>
             </div>
 
             <!-- User Profile -->
@@ -119,53 +181,15 @@
         </div>
 
         <!-- Main Content -->
-        <div id="mainContent" class="main-content flex-1 flex flex-col overflow-hidden mr-0 md:mr-64 transition-all duration-300 ease-in-out">
-            <!-- Top Bar -->
-            <header class="bg-white shadow-sm">
-                <div class="flex items-center justify-between p-4">
-                    <div class="flex items-center">
-                        <!-- Mobile Menu Button -->
-                        <button id="menuBtn" onclick="toggleSidebar()" class="md:hidden ml-4 text-gray-600 hover:text-blue-600 focus:outline-none">
-                            <i class="fas fa-bars text-xl"></i>
-                        </button>
-                        <h2 class="text-lg font-semibold text-gray-800 mr-4">@ViewData["Title"]</h2>
-                    </div>
-                    <div class="flex items-center space-x-4 space-x-reverse">
-                        <div class="relative">
-                                @{
-                                    var unreadCount = 0;
-                                    try {
-                                        unreadCount = _db.Feedbacks.Count(f => !f.IsRead);
-                                    } catch {
-                                        // If DB not available in this view render fallback 0
-                                        unreadCount = 0;
-                                    }
-                                }
-                                <a asp-controller="Admin" asp-action="FeedbackList" class="text-gray-500 hover:text-gray-700 relative inline-flex items-center" aria-label="الرسائل والملاحظات">
-                                    <i class="fas fa-bell text-xl"></i>
-                                    @if (unreadCount > 0)
-                                    {
-                                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">@unreadCount</span>
-                                    }
-                                </a>
-                            </div>
-                        <form asp-controller="Home" asp-action="Logout" method="post" class="ml-4">
-                            <button type="submit" class="flex items-center text-gray-600 hover:text-red-600 transition-colors">
-                                <i class="fas fa-sign-out-alt ml-2"></i>
-                                <span>تسجيل الخروج</span>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </header>
+        <div id="mainContent" class="main-content admin-page-shell flex-1 flex flex-col overflow-hidden mr-0 md:mr-64 transition-all duration-300 ease-in-out">
 
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <main class="admin-main flex-1 overflow-y-auto p-6 bg-gray-50">
                 @RenderBody()
             </main>
 
             <!-- Footer -->
-            <footer class="bg-white border-t py-4 px-6">
+            <footer class="admin-footer bg-white border-t py-4 px-6">
                 <div class="flex flex-col md:flex-row justify-between items-center text-center md:text-right">
                     <div class="text-sm text-gray-500 mb-2 md:mb-0">
                         نظام المخالفات المرورية © @DateTime.Now.Year - جميع الحقوق محفوظة

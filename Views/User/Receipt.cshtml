@@ -1,0 +1,140 @@
+@model TicketSystem.Models.Ticket
+@inject TicketSystem.Services.IQrCodeService QrService
+@{
+    ViewData["Title"] = $"إيصال المخالفة #{Model.Ticket_Id}";
+    Layout = null;
+
+    var ticketUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Ticket/Open/{Model.Ticket_Id}";
+    var qrDataUri = QrService.GeneratePngDataUri(ticketUrl, 8);
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+
+    <style>
+        :root { --receipt-width: 80mm; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            color: #111;
+            background: #fff;
+        }
+
+        .receipt {
+            width: var(--receipt-width);
+            padding: 10px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .center { text-align: center; }
+        .muted { color: #555; }
+        .hr { border-top: 1px dashed #999; margin: 8px 0; }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .label { font-weight: 700; }
+
+        .qr {
+            display: block;
+            margin: 8px auto;
+            width: 140px;
+            height: 140px;
+        }
+
+        .signature {
+            margin-top: 12px;
+            font-size: 12px;
+        }
+
+        .sig-line {
+            margin-top: 18px;
+            border-top: 1px solid #000;
+            height: 1px;
+        }
+
+        .sig-caption {
+            margin-top: 4px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 11px;
+        }
+
+        .print-actions {
+            width: var(--receipt-width);
+            margin: 10px auto;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        @@media print {
+            .print-actions { display: none !important; }
+            .receipt { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-actions">
+        <button onclick="window.print()">طباعة</button>
+        <button onclick="window.close()">إغلاق</button>
+    </div>
+
+    <div class="receipt">
+        <div class="center">
+            <div style="font-weight:800; font-size:14px;">إيصال مخالفة مرورية</div>
+            <div class="muted" style="font-size:12px;">Ticket #@Model.Ticket_Id</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row"><span class="label">رقم اللوحة</span><span>@Model.Plate_Number</span></div>
+        <div class="row"><span class="label">نوع المخالفة</span><span style="text-align:right; max-width:55mm;">@Model.Violations</span></div>
+        <div class="row"><span class="label">الموقع</span><span style="text-align:right; max-width:55mm;">@Model.Violation_Place</span></div>
+        <div class="row"><span class="label">تاريخ الإصدار</span><span>@Model.Ticket_Time.ToString("g")</span></div>
+        <div class="row"><span class="label">تاريخ الاستحقاق</span><span>@Model.Due_Date.ToString("d")</span></div>
+        <div class="row"><span class="label">الموظف</span><span style="text-align:right; max-width:55mm;">@Model.IssuedBy</span></div>
+
+        <div class="hr"></div>
+
+        <div class="center" style="font-size:12px; font-weight:700;">امسح الرمز لعرض تفاصيل المخالفة</div>
+        <img class="qr" src="@qrDataUri" alt="Ticket QR" />
+        <div class="center muted" style="font-size:10px; word-break:break-all;">@ticketUrl</div>
+
+        <div class="hr"></div>
+
+        <div class="signature">
+            <div style="font-weight:700;">إقرار السائق</div>
+            <div class="muted" style="margin-top:4px; line-height:1.3;">
+                أقر باستلام هذه المخالفة، وأفهم أن التوقيع لا يعني الإقرار بالذنب.
+            </div>
+
+            <div class="sig-line"></div>
+            <div class="sig-caption">
+                <span>توقيع السائق</span>
+                <span>التاريخ: ____/____/______</span>
+            </div>
+
+            <div class="sig-line"></div>
+            <div class="sig-caption">
+                <span>اسم السائق</span>
+                <span>الرقم/الهاتف</span>
+            </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="center muted" style="font-size:10px;">
+            احتفظ بهذا الإيصال لسجلاتك.
+        </div>
+    </div>
+</body>
+</html>

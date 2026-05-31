@@ -1,67 +1,521 @@
-﻿@{
+﻿@model OfficeReportsViewModel
+@{
+    ViewData["Title"] = "لوحة المكتب";
     Layout = "_OfficeLayout";
 
+    var paidPercent = Model.TotalTickets > 0 ? Math.Round((Model.PaidTickets * 100.0) / Model.TotalTickets) : 0;
 }
-<head>
-    <link href="~/css/ticketresults.css" rel="stylesheet" />
-</head>
-<body>
-     <div class="container">
-            <div class="dashboard">
-                
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-barcode"></i>
-                        <h2>مسح المخالفة</h2>
-                    </div>
-                    <p>امسح مخالفات المرور باستخدام الباركود أو رمز الاستجابة السريعة.</p>
-                    <a asp-controller="Office" asp-action="ScanTicketQr" class="btn">امسح الآن</a>
+
+@section Styles {
+    <style>
+        .office-index-page {
+            max-width: 1200px;
+            margin-inline: auto;
+            color: #0f172a;
+        }
+
+        .office-hero,
+        .office-card,
+        .stat-card {
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .office-hero {
+            border-radius: 24px;
+            padding: 1.4rem;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 62%, #f8fafc 100%);
+            margin-bottom: 1rem;
+        }
+
+        .office-hero-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.95fr;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        .office-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(29, 78, 216, 0.1);
+            color: #1d4ed8;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .office-hero h1 {
+            font-size: clamp(1.75rem, 3vw, 2.6rem);
+            font-weight: 800;
+            margin: 0.85rem 0 0.45rem;
+            color: #0f172a;
+        }
+
+        .office-hero p {
+            margin: 0;
+            color: #475569;
+            line-height: 1.8;
+            max-width: 44rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-top: 1.15rem;
+        }
+
+        .hero-actions .btn {
+            float: none;
+            border-radius: 12px;
+            padding: 0.7rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hero-panel {
+            border-radius: 20px;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-panel .panel-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .hero-panel .panel-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .hero-panel .label,
+        .stat-label,
+        .card-subtitle {
+            color: #64748b;
+        }
+
+        .hero-panel .value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .hero-panel .panel-icon {
+            width: 2.6rem;
+            height: 2.6rem;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #eff6ff;
+            color: #1d4ed8;
+            flex: 0 0 auto;
+        }
+
+        .office-stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            border-radius: 18px;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            inset-inline-start: 0;
+            inset-block-end: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent, #1d4ed8);
+        }
+
+        .stat-label {
+            font-size: 0.88rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .stat-value {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+
+        .stat-foot {
+            margin-top: 0.45rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .office-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .office-card {
+            border-radius: 20px;
+            padding: 1.1rem;
+        }
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .section-title i {
+            color: #1d4ed8;
+        }
+
+        .violation-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .violation-item {
+            padding: 0.85rem 0.9rem;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+
+        .violation-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            align-items: center;
+            margin-bottom: 0.55rem;
+        }
+
+        .violation-name {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .violation-count {
+            font-weight: 800;
+            color: #1d4ed8;
+        }
+
+        .violation-track {
+            height: 8px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+
+        .violation-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #60a5fa 0%, #1d4ed8 100%);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+
+        .quick-action {
+            display: block;
+            text-decoration: none;
+            color: #0f172a;
+            border-radius: 16px;
+            padding: 1rem;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            min-height: 132px;
+        }
+
+        .quick-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+            border-color: #dbeafe;
+            color: #0f172a;
+        }
+
+        .quick-action .icon {
+            width: 2.6rem;
+            height: 2.6rem;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.9rem;
+            color: #1d4ed8;
+            background: #eff6ff;
+        }
+
+        .quick-action h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        .quick-action p {
+            margin: 0;
+            color: #64748b;
+            line-height: 1.7;
+            font-size: 0.92rem;
+        }
+
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .summary-pill {
+            padding: 0.8rem 0.9rem;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+
+        .summary-pill .label {
+            display: block;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 0.3rem;
+        }
+
+        .summary-pill .value {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        @@media (max-width: 1100px) {
+            .office-hero-grid,
+            .office-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .office-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .office-stats,
+            .quick-actions,
+            .summary-row {
+                grid-template-columns: 1fr;
+            }
+
+            .office-hero {
+                padding: 1rem;
+                border-radius: 18px;
+            }
+
+            .office-card {
+                padding: 1rem;
+            }
+
+            .hero-actions,
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+            .hero-actions {
+                display: grid;
+            }
+
+        }
+    </style>
+}
+
+<div class="office-index-page" dir="rtl">
+    <div class="office-hero">
+        <div class="office-hero-grid">
+            <div>
+                <span class="office-kicker">
+                    <i class="fas fa-building-columns"></i>
+                    لوحة المكتب
+                </span>
+                <h1>متابعة بسيطة وواضحة لعمل المكتب</h1>
+                <p>
+                    نظرة سريعة على المخالفات، السداد، وحركة النظام مع وصول مباشر إلى أهم الإجراءات اليومية دون ازدحام بصري.
+                </p>
+
+                <div class="hero-actions">
+                    <a asp-controller="Office" asp-action="ScanTicketQr" class="btn btn-primary">
+                        <i class="fas fa-qrcode"></i>
+                        مسح التذكرة
+                    </a>
+                    <a asp-controller="Office" asp-action="ScanPlate" class="btn btn-outline-primary">
+                        <i class="fas fa-car-side"></i>
+                        بحث اللوحات
+                    </a>
+                    <a asp-controller="Office" asp-action="Process" class="btn btn-outline-secondary">
+                        <i class="fas fa-clipboard-check"></i>
+                        معالجة التذاكر
+                    </a>
                 </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-file-alt"></i>
-                        <h2>التقارير</h2>
+                <div class="summary-row">
+                    <div class="summary-pill">
+                        <span class="label">إجمالي المخالفات</span>
+                        <span class="value">@Model.TotalTickets</span>
                     </div>
-                    <p>أنشئ واعرض التقارير حول المخالفات والمدفوعات والمزيد.</p>
-                    <a asp-controller="Office" asp-action="Reports" class="btn">عرض التقارير</a>
+                    <div class="summary-pill">
+                        <span class="label">نسبة السداد</span>
+                        <span class="value">@paidPercent%</span>
+                    </div>
+                    <div class="summary-pill">
+                        <span class="label">المستخدمون</span>
+                        <span class="value">@Model.TotalUsers</span>
+                    </div>
                 </div>
+            </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-user-plus"></i>
-                        <h2>تسجيل المستخدمين</h2>
+            <div class="hero-panel">
+                <div class="panel-item">
+                    <div>
+                        <div class="label">المدفوعة</div>
+                        <div class="value">@Model.PaidTickets</div>
                     </div>
-                    <p>أضف موظفين جدد وادخل حسابات المستخدمين.</p>
-                    <a asp-controller="Office" asp-action="Register" class="btn">إدارة المستخدمين</a>
+                    <span class="panel-icon"><i class="fas fa-circle-check"></i></span>
                 </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-search"></i>
-                        <h2>بحث المخالفات</h2>
+                <div class="panel-item">
+                    <div>
+                        <div class="label">غير المدفوعة</div>
+                        <div class="value">@Model.UnpaidTickets</div>
                     </div>
-                    <p>ابحث عن مخالفات محددة بالرقم أو لوحة السيارة أو السائق.</p>
-                <a asp-controller="Office" asp-action="ScanPlate" class="btn">بحث</a>
+                    <span class="panel-icon"><i class="fas fa-triangle-exclamation"></i></span>
                 </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-chart-bar"></i>
-                        <h2>الإحصائيات</h2>
+                <div class="panel-item">
+                    <div>
+                        <div class="label">مخالفات هذا العام</div>
+                        <div class="value">@Model.TicketsThisYear</div>
                     </div>
-                    <p>اعرض الإحصائيات والتحليلات حول المخالفات والمدفوعات.</p>
-                    <a asp-controller="Reports" asp-action="Statistics" class="btn">عرض الإحصائيات</a>
+                    <span class="panel-icon"><i class="fas fa-chart-line"></i></span>
                 </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <h2>معالجة المدفوعات</h2>
+                <div class="panel-item">
+                    <div>
+                        <div class="label">الشهر الماضي</div>
+                        <div class="value">@Model.TicketsLastMonth</div>
                     </div>
-                    <p>معالجة مدفوعات مخالفات المرور.</p>
-                    <a asp-controller="Office" asp-action="Process" class="btn">معالجة الدفع</a>
+                    <span class="panel-icon"><i class="fas fa-calendar-days"></i></span>
                 </div>
             </div>
         </div>
-</body>
+    </div>
+
+    <div class="office-stats">
+        <div class="stat-card" style="--accent:#1d4ed8;">
+            <div class="stat-label">إجمالي المخالفات</div>
+            <div class="stat-value">@Model.TotalTickets</div>
+            <div class="stat-foot">جميع التذاكر المسجلة</div>
+        </div>
+        <div class="stat-card" style="--accent:#10b981;">
+            <div class="stat-label">المدفوعة</div>
+            <div class="stat-value">@Model.PaidTickets</div>
+            <div class="stat-foot">تمت تسويتها</div>
+        </div>
+        <div class="stat-card" style="--accent:#ef4444;">
+            <div class="stat-label">غير المدفوعة</div>
+            <div class="stat-value">@Model.UnpaidTickets</div>
+            <div class="stat-foot">تحتاج متابعة</div>
+        </div>
+        <div class="stat-card" style="--accent:#0ea5e9;">
+            <div class="stat-label">المستخدمون</div>
+            <div class="stat-value">@Model.TotalUsers</div>
+            <div class="stat-foot">الحسابات المسجلة</div>
+        </div>
+    </div>
+
+    <div class="office-grid">
+        <div class="office-card">
+            <div class="section-title">
+                <i class="fas fa-list"></i>
+                أكثر المخالفات تكرارًا
+            </div>
+
+            @if (Model.TopViolationLabels.Length > 0)
+            {
+                <div class="violation-list">
+                    @for (var i = 0; i < Model.TopViolationLabels.Length; i++)
+                    {
+                        var label = Model.TopViolationLabels[i];
+                        var count = Model.TopViolationCounts[i];
+                        var width = Model.TopViolationCounts.Max() > 0 ? Math.Max(12, (int)Math.Round((count * 100.0) / Model.TopViolationCounts.Max())) : 12;
+
+                        <div class="violation-item">
+                            <div class="violation-top">
+                                <span class="violation-name">@label</span>
+                                <span class="violation-count">@count</span>
+                            </div>
+                            <div class="violation-track">
+                                <div class="violation-fill" style="width: @width%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">لا توجد مخالفات مصنفة حتى الآن.</p>
+            }
+        </div>
+
+        <div class="office-card">
+            <div class="section-title">
+                <i class="fas fa-bolt"></i>
+                إجراءات سريعة
+            </div>
+
+            <div class="quick-actions">
+                <a asp-controller="Office" asp-action="ScanPlate" class="quick-action">
+                    <div class="icon"><i class="fas fa-qrcode"></i></div>
+                    <h3>مسح المخالفة</h3>
+                    <p>فتح رمز QR والوصول مباشرة إلى بيانات التذكرة.</p>
+                </a>
+
+                <a asp-controller="Office" asp-action="ScanPlate" class="quick-action">
+                    <div class="icon"><i class="fas fa-car-side"></i></div>
+                    <h3>بحث اللوحات</h3>
+                    <p>البحث السريع عن المخالفات المرتبطة بلوحة مركبة.</p>
+                </a>
+
+                <a asp-controller="Office" asp-action="Reports" class="quick-action">
+                    <div class="icon"><i class="fas fa-chart-column"></i></div>
+                    <h3>التقارير</h3>
+                    <p>عرض الإحصائيات والتحليل الشهري والسنوي.</p>
+                </a>
+
+                <a asp-controller="Office" asp-action="Process" class="quick-action">
+                    <div class="icon"><i class="fas fa-clipboard-check"></i></div>
+                    <h3>معالجة التذاكر</h3>
+                    <p>مراجعة التذاكر قيد المعالجة واستكمالها.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

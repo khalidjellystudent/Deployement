@@ -21,6 +21,14 @@ namespace TicketSystem.Models
         public bool Appealed { get; set; } = false;
         public decimal FineAmount { get; set; }
 
+        [Column(TypeName = "varbinary(max)")]
+        public byte[]? EvidenceImageData { get; set; }
+
+        public string? EvidenceImageContentType { get; set; }
+
+        [NotMapped]
+        public string? EvidenceImageTempPath { get; set; }
+
         public string? VoiceReportPath { get; set; }
 
         [ForeignKey("Users")]

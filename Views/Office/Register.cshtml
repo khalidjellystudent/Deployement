@@ -1,127 +1,229 @@
 ﻿@using TicketSystem.Models
 @model User
 @{
+    ViewData["Title"] = "تسجيل مستخدم جديد";
     Layout = "_OfficeLayout";
 }
-<head>
 
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="text-center">Create New Account</h3>
-                    </div>
-                    <div class="card-body">
-                        <form asp-action="Register" method="post">
-                            <!-- Personal Info -->
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label asp-for="Name" class="form-label"></label>
-                                    <input asp-for="Name" class="form-control" />
-                                    <span asp-validation-for="Name" class="text-danger"></span>
-                                </div>
-                                <div class="col-md-6">
-                                    <label asp-for="Email" class="form-label"></label>
-                                    <input asp-for="Email" type="email" class="form-control" />
-                                    <span asp-validation-for="Email" class="text-danger"></span>
-                                    @if (ViewData.ModelState["Email"]?.Errors.Count > 0)
-                                    {
-                                        <span class="text-danger">@ViewData.ModelState["Email"].Errors[0].ErrorMessage</span>
-                                    }
-                                </div>
-                            </div>
+@section Styles {
+    <style>
+        .office-register-page {
+            max-width: 980px;
+            margin-inline: auto;
+            color: #0f172a;
+        }
 
-                            <!-- Password -->
-                            <div class="mb-3">
-                                <label asp-for="Password" class="form-label"></label>
-                                <input asp-for="Password" type="password" class="form-control" />
-                                <span asp-validation-for="Password" class="text-danger"></span>
-                            </div>
+        .register-hero,
+        .register-panel {
+            border: 1px solid #e5e7eb;
+            border-radius: 22px;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
 
-                            <!-- Demographics -->
-                            <div class="row mb-3">
-                                <div class="col-md-3">
-                                    <label asp-for="Birth_Date" class="form-label"></label>
-                                    <input asp-for="Birth_Date" type="date" class="form-control" />
-                                </div>
-                                <div class="col-md-3">
-                                    <label asp-for="Sex" class="form-label"></label>
-                                    <select asp-for="Sex" class="form-select">
-                                        <option value="">Select</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label asp-for="Role" class="form-label"></label>
-                                    <select asp-for="Role" class="form-select">
-                                        <option value="">Select</option>
-                                        <option value="User">User</option>
-                                        <option value="Officer">Officer</option>
-                                        <option value="Office">Office</option>
-                                        <option value="Admin">Admin</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label asp-for="Blood_Type" class="form-label"></label>
-                                    <select asp-for="Blood_Type" class="form-select">
-                                        <option value="">Select</option>
-                                        <option value="A+">A+</option>
-                                        <option value="A-">A-</option>
-                                        <option value="B+">B+</option>
-                                        <option value="B-">B-</option>
-                                        <option value="AB+">AB+</option>
-                                        <option value="AB-">AB-</option>
-                                        <option value="O+">O+</option>
-                                        <option value="O-">O-</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label asp-for="License_Status" class="form-label"></label>
-                                    <select asp-for="License_Status" class="form-select">
-                                        <option value="Valid">Valid</option>
-                                        <option value="Expired">Expired</option>
-                                        <option value="Suspended">Suspended</option>
-                                    </select>
-                                </div>
-                            </div>
+        .register-hero {
+            background: linear-gradient(135deg, #f8fbff 0%, #ffffff 70%);
+            margin-bottom: 1rem;
+        }
 
-                            <!-- Address & Degree -->
-                            <div class="row mb-3">
-                                <div class="col-md-8">
-                                    <label asp-for="Address" class="form-label"></label>
-                                    <input asp-for="Address" class="form-control" />
-                                </div>
-                                <div class="col-md-4">
-                                    <label asp-for="Digree" class="form-label"></label>
-                                    <input asp-for="Digree" class="form-control" />
-                                </div>
-                            </div>
+        .register-hero__inner,
+        .register-panel .card-body,
+        .register-panel .card-header {
+            padding: 1.25rem;
+        }
 
+        .register-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
 
+        .register-title {
+            margin: 0.85rem 0 0.35rem;
+            font-size: clamp(1.45rem, 3vw, 2.1rem);
+            font-weight: 800;
+            color: #0f172a;
+        }
 
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Register</button>
-                            </div>
-                            @if (TempData["SuccessMessage"] != null)
-                            {
-                                <div class="alert alert-success">
-                                    @TempData["SuccessMessage"]
-                                </div>
-                            }
+        .register-subtitle {
+            margin: 0;
+            color: #64748b;
+            line-height: 1.75;
+        }
 
-                        </form>
-                    </div>
-                </div>
-            </div>
+        .register-label {
+            display: block;
+            margin-bottom: 0.45rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .register-panel .form-control,
+        .register-panel .form-select {
+            min-height: 52px;
+            border-radius: 14px;
+            border: 1px solid #dbe3ef;
+            box-shadow: none;
+        }
+
+        .register-panel .form-control:focus,
+        .register-panel .form-select:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.12);
+        }
+
+        .register-help {
+            font-size: 0.88rem;
+            color: #64748b;
+        }
+
+        .register-submit {
+            min-height: 54px;
+            border-radius: 14px;
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            font-weight: 700;
+        }
+
+        .register-submit:hover {
+            background: #1e40af;
+            border-color: #1e40af;
+        }
+
+        @@media (max-width: 768px) {
+            .register-hero__inner,
+            .register-panel .card-body,
+            .register-panel .card-header {
+                padding: 1rem;
+            }
+        }
+    </style>
+}
+
+<div class="office-register-page" dir="rtl">
+    <div class="register-hero">
+        <div class="register-hero__inner">
+            <span class="register-kicker">
+                <i class="fas fa-user-plus"></i>
+                تسجيل جديد
+            </span>
+            <h1 class="register-title">إنشاء حساب جديد</h1>
+            <p class="register-subtitle">أدخل بيانات المستخدم أو الموظف الجديد بشكل واضح ومختصر لإكمال التسجيل داخل النظام.</p>
         </div>
     </div>
-    @section Scripts {
-        <partial name="_ValidationScriptsPartial" />
-    }
-</body>
+
+    <div class="register-panel">
+        <div class="card-body">
+            <form asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="register-label">الاسم الكامل</label>
+                        <input asp-for="Name" class="form-control" placeholder="أدخل الاسم الكامل" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="register-label">البريد الإلكتروني</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="name@example.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                        @if (ViewData.ModelState["Email"]?.Errors.Count > 0)
+                        {
+                            <span class="text-danger small">@ViewData.ModelState["Email"].Errors[0].ErrorMessage</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="register-label">كلمة المرور</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="أدخل كلمة المرور" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <label asp-for="Birth_Date" class="register-label">تاريخ الميلاد</label>
+                        <input asp-for="Birth_Date" type="date" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Sex" class="register-label">الجنس</label>
+                        <select asp-for="Sex" class="form-select">
+                            <option value="">اختر</option>
+                            <option value="Male">ذكر</option>
+                            <option value="Female">أنثى</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Role" class="register-label">الدور</label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="">اختر</option>
+                            <option value="User">مستخدم</option>
+                            <option value="Officer">ضابط</option>
+                            <option value="Office">مكتب</option>
+                            <option value="Admin">مسؤول</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Blood_Type" class="register-label">فصيلة الدم</label>
+                        <select asp-for="Blood_Type" class="form-select">
+                            <option value="">اختر</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="License_Status" class="register-label">حالة الرخصة</label>
+                        <select asp-for="License_Status" class="form-select">
+                            <option value="Valid">سارية</option>
+                            <option value="Expired">منتهية</option>
+                            <option value="Suspended">موقوفة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-8">
+                        <label asp-for="Address" class="register-label">العنوان</label>
+                        <input asp-for="Address" class="form-control" placeholder="أدخل العنوان" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Digree" class="register-label">الدرجة / الوظيفة</label>
+                        <input asp-for="Digree" class="form-control" placeholder="أدخل الدرجة" />
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary register-submit">
+                        <i class="fas fa-user-check ms-1"></i>
+                        تسجيل
+                    </button>
+                </div>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success mt-3 mb-0">
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
 
 

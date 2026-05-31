@@ -1,43 +1,173 @@
-﻿@model TicketSystem.Models.Ticket
+@model TicketSystem.Models.Ticket
+@inject IConfiguration Configuration
 @{
     ViewData["Title"] = "Pay Ticket";
     Layout = "_UserLayout";
+
+    var provider = "dpay";
+    var gatewayName = "DPay";
+    var dpayMethod = (Configuration["DPay:PayMethod"] ?? "moamalat").Trim().ToLowerInvariant();
+    var payMethod = dpayMethod;
+    var pendingSessionId = ViewBag.PendingSessionId as string;
+    var pendingPaymentUrl = ViewBag.PendingPaymentUrl as string;
 }
 
-<div class="container mt-3" style="max-width: 600px;">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Pay Ticket</h5>
-        </div>
-        <div class="card-body">
-            <h6>Ticket #@Model.Ticket_Id</h6>
-            <p class="mb-1">Amount Due: <strong>$@Model.FineAmount</strong></p>
-            <hr />
+<div class="container py-4" style="max-width: 560px;">
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                <div>
+                    <div class="text-uppercase text-muted small mb-1">Payment</div>
+                    <h5 class="mb-1">Pay Ticket</h5>
+                    <div class="text-muted small">@gatewayName checkout</div>
+                </div>
+                <div class="text-end">
+                    <div class="text-muted small">Due</div>
+                    <div class="fw-bold fs-5">$@Model.FineAmount</div>
+                </div>
+            </div>
 
-            <!-- Payment Form (Example: Mock Payment) -->
-            <form asp-action="ProcessPayment" method="post">
+            @if (TempData["PaymentError"] is string paymentError)
+            {
+                <div class="alert alert-danger" role="alert">@paymentError</div>
+            }
+
+            @if (TempData["PaymentSuccess"] is string paymentSuccess)
+            {
+                <div class="alert alert-success" role="alert">@paymentSuccess</div>
+            }
+
+            <div class="row g-2 mb-4">
+                <div class="col-6">
+                    <div class="border rounded-3 p-3 bg-light h-100">
+                        <div class="text-muted small">Ticket</div>
+                        <div class="fw-semibold">#@Model.Ticket_Id</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="border rounded-3 p-3 bg-light h-100">
+                        <div class="text-muted small">Gateway</div>
+                        <div class="fw-semibold">DPay</div>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="CreateCheckoutSession" method="post">
                 <input type="hidden" name="ticketId" value="@Model.Ticket_Id" />
+                <input type="hidden" id="paymentProviderInput" name="paymentProvider" value="@provider" />
 
-                <div class="mb-3">
-                    <label class="form-label">Card Number</label>
-                    <input type="text" class="form-control" placeholder="1234 5678 9012 3456" required />
+                <div class="mb-3" id="customerMobileGroup" style="display: @(payMethod == "edfali" ? "block" : "none");">
+                    <label class="form-label">Customer Mobile</label>
+                    <input type="tel" id="customerMobileInput" name="customerMobile" class="form-control" placeholder="0912345678" inputmode="numeric" autocomplete="tel" @(payMethod == "edfali" ? "required" : null) />
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Expiry Date</label>
-                        <input type="text" class="form-control" placeholder="MM/YY" required />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">CVV</label>
-                        <input type="text" class="form-control" placeholder="123" required />
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-success w-100">
+                <button type="submit" class="btn btn-primary w-100 py-2">
                     <i class="fas fa-lock me-1"></i> Pay Now
                 </button>
             </form>
+
+            @if (!string.IsNullOrWhiteSpace(pendingSessionId))
+            {
+                <div class="border rounded-3 p-3 mt-4">
+                    <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                        <span class="text-muted small">Session #<strong id="gatewaySessionId">@pendingSessionId</strong></span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="copySessionBtn" data-session-id="@pendingSessionId">
+                            Copy
+                        </button>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(pendingPaymentUrl))
+                {
+                    <a href="@pendingPaymentUrl" target="_blank" rel="noopener" class="btn btn-outline-primary w-100 mt-3">
+                        Open Payment Page
+                    </a>
+                }
+
+                <form asp-action="VerifyDPaySession" method="post" class="mt-2">
+                    <input type="hidden" name="ticketId" value="@Model.Ticket_Id" />
+                    <input type="hidden" name="sessionId" value="@pendingSessionId" />
+                    <input type="hidden" name="paymentProvider" value="@provider" />
+
+                    @if (payMethod == "edfali")
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">OTP</label>
+                            <input type="text" name="otp" class="form-control" placeholder="6-digit OTP" inputmode="numeric" autocomplete="one-time-code" />
+                        </div>
+                    }
+
+                    <button type="submit" class="btn btn-outline-primary w-100">Verify Payment</button>
+                </form>
+            }
         </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 1.25rem;
+        }
+
+        .form-control,
+        .btn {
+            border-radius: 0.75rem;
+        }
+
+        .btn-outline-primary,
+        .btn-primary {
+            min-height: 44px;
+        }
+
+        .text-muted.small {
+            line-height: 1.3;
+        }
+    </style>
+}
+
+<script>
+    (() => {
+        const copyBtn = document.getElementById("copySessionBtn");
+        const providerInput = document.getElementById("paymentProviderInput");
+        const mobileGroup = document.getElementById("customerMobileGroup");
+        const mobileInput = document.getElementById("customerMobileInput");
+        const dpayMethod = "@dpayMethod";
+
+        const syncProviderUi = () => {
+            if (providerInput) {
+                providerInput.value = "@provider";
+            }
+
+            const requiresMobile = dpayMethod === "edfali";
+
+            if (mobileGroup) {
+                mobileGroup.style.display = requiresMobile ? "block" : "none";
+            }
+
+            if (mobileInput) {
+                mobileInput.required = requiresMobile;
+            }
+        };
+
+        syncProviderUi();
+
+        if (!copyBtn) return;
+
+        copyBtn.addEventListener("click", async () => {
+            const sessionId = copyBtn.getAttribute("data-session-id") || "";
+            if (!sessionId) return;
+
+            try {
+                await navigator.clipboard.writeText(sessionId);
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = "Copied";
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 1200);
+            } catch {
+                copyBtn.textContent = "Copy failed";
+            }
+        });
+    })();
+</script>

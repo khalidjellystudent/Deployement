@@ -75,5 +75,46 @@ namespace TicketSystem.Controllers
             TempData["AccessDeniedMessage"] = "You do not have permission to view this ticket.";
             return RedirectToAction("AccessDenied", "Home");
         }
+
+        [HttpGet]
+        public IActionResult EvidenceImage(int id)
+        {
+            var ticket = _db.Tickets
+                .AsNoTracking()
+                .FirstOrDefault(t => t.Ticket_Id == id);
+
+            if (ticket == null || ticket.EvidenceImageData == null || string.IsNullOrWhiteSpace(ticket.EvidenceImageContentType))
+            {
+                return NotFound();
+            }
+
+            if (User.IsInRole("User"))
+            {
+                var userEmailRaw = User.FindFirstValue(ClaimTypes.Email)
+                    ?? User.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? User.Identity?.Name;
+
+                var userEmail = (userEmailRaw ?? string.Empty).Trim();
+                var ticketEmail = (ticket.Email ?? string.Empty).Trim();
+
+                if (string.IsNullOrWhiteSpace(userEmail) ||
+                    string.IsNullOrWhiteSpace(ticketEmail) ||
+                    !string.Equals(ticketEmail, userEmail, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["AccessDeniedMessage"] = "You can't access another user's ticket.";
+                    return RedirectToAction("AccessDenied", "Home");
+                }
+
+                return File(ticket.EvidenceImageData, ticket.EvidenceImageContentType);
+            }
+
+            if (User.IsInRole("Officer") || User.IsInRole("Office") || User.IsInRole("Admin"))
+            {
+                return File(ticket.EvidenceImageData, ticket.EvidenceImageContentType);
+            }
+
+            TempData["AccessDeniedMessage"] = "You do not have permission to view this ticket.";
+            return RedirectToAction("AccessDenied", "Home");
+        }
     }
 }

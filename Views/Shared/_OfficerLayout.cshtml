@@ -25,16 +25,16 @@
         }
 
         :root {
-            --primary-color: #2563eb; /* Royal Blue */
-            --primary-dark: #1d4ed8;
-            --accent-color: #0ea5e9; /* Sky Blue */
-            --success-color: #10b981; /* Emerald */
-            --warning-color: #f59e0b; /* Amber */
-            --danger-color: #ef4444; /* Red */
-            --light-bg: #f8fafc; /* Light Gray */
+            --primary-color: #1d4ed8;
+            --primary-dark: #1e40af;
+            --accent-color: #0ea5e9;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-bg: #f6f8fc;
             --card-bg: #ffffff;
-            --text-primary: #1e293b; /* Dark Slate */
-            --text-secondary: #64748b; /* Slate */
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
         }
 
         body {
@@ -52,12 +52,14 @@
 
         /* Header Styles */
         header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            color: white;
+            background: rgba(255, 255, 255, 0.96);
+            color: var(--text-primary);
             padding: 12px 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
             position: sticky;
             top: 0;
+            backdrop-filter: blur(12px);
             z-index: 1000;
         }
 
@@ -77,23 +79,12 @@
             gap: 15px;
         }
 
-        .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            font-size: 22px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
+        .logo-image {
+            width: 92px;
+            height: 92px;
+            object-fit: contain;
+            display: block;
         }
-
-            .logo-icon:hover {
-                transform: scale(1.05);
-            }
 
         .logo-text {
             font-size: 20px;
@@ -107,38 +98,28 @@
         }
 
             nav a {
-                color: white;
+                color: var(--text-primary);
                 text-decoration: none;
-                padding: 10px 15px;
-                border-radius: 5px;
-                transition: background 0.3s;
+                padding: 10px 14px;
+                border-radius: 999px;
+                border: 1px solid transparent;
+                transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
             }
 
                 nav a:hover, nav a.active {
-                    background: rgba(255, 255, 255, 0.15);
-                    color: white;
+                    background: #eff6ff;
+                    color: var(--primary-color);
+                    border-color: #dbeafe;
                 }
 
                 nav a.active {
                     font-weight: 600;
-                    position: relative;
                 }
-
-                    nav a.active::after {
-                        content: '';
-                        position: absolute;
-                        bottom: -8px;
-                        right: 15px;
-                        left: 15px;
-                        height: 3px;
-                        background: white;
-                        border-radius: 3px 3px 0 0;
-                    }
 
         /* Main Content (avoid overriding Bootstrap's .container) */
         .officer-container {
             max-width: 1200px;
-            margin: 20px auto;
+            margin: 24px auto;
             padding: 0 16px;
             flex: 1;
         }
@@ -152,9 +133,9 @@
 
         .card {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-radius: 18px;
+            padding: 0;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
             transition: all 0.3s ease;
             text-align: right;
             border: 1px solid #e2e8f0;
@@ -162,16 +143,16 @@
         }
 
             .card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                border-color: var(--primary-color);
+                transform: translateY(-2px);
+                box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+                border-color: #cbd5e1;
             }
 
         .card-header {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 0;
             color: var(--primary-color);
             justify-content: flex-end;
         }
@@ -188,26 +169,23 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: var(--primary-color);
-            color: white;
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
+            padding: 0.625rem 1.1rem;
+            border-radius: 10px;
             text-decoration: none;
-            margin-top: 15px;
             transition: all 0.2s ease;
-            border: none;
+            border: 1px solid transparent;
             cursor: pointer;
-            float: right;
+            float: none;
             font-weight: 500;
             gap: 0.5rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
         }
 
             .btn:hover {
                 background: var(--primary-dark);
                 color: white;
                 transform: translateY(-1px);
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 6px 12px rgba(15, 23, 42, 0.08);
             }
 
             .btn i {
@@ -216,12 +194,12 @@
 
         /* Footer */
         footer {
-            background: var(--primary-color);
+            background: #0f172a;
             color: white;
             padding: 1.25rem 16px;
             text-align: center;
             margin-top: auto;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
             footer a {
@@ -245,11 +223,9 @@
                 gap: 10px;
             }
 
-            .logo-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-                border-radius: 8px;
+            .logo-image {
+                width: 80px;
+                height: 80px;
             }
 
             .logo-text {
@@ -267,11 +243,11 @@
                 height: 44px;
                 align-items: center;
                 justify-content: center;
-                background: rgba(255,255,255,0.15);
+                background: #eff6ff;
                 border-radius: 10px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                border: 1px solid rgba(255,255,255,0.1);
-                color: white;
+                box-shadow: 0 2px 8px rgba(15,23,42,0.08);
+                border: 1px solid #dbeafe;
+                color: var(--primary-color);
                 transition: all 0.2s ease;
             }
 
@@ -286,8 +262,8 @@
                 right: 12px;
                 left: 12px;
                 background: var(--card-bg);
-                border-radius: 12px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                border-radius: 18px;
+                box-shadow: 0 18px 50px rgba(15,23,42,0.12);
                 display: none;
                 flex-direction: column;
                 gap: 4px;
@@ -311,7 +287,7 @@
 
             nav a {
                 padding: 14px 16px;
-                border-radius: 10px;
+                border-radius: 12px;
                 color: var(--text-primary);
                 text-align: right;
                 background: transparent;
@@ -324,16 +300,12 @@
             }
 
             nav a:hover {
-                background: var(--light-bg);
+                background: #eff6ff;
             }
 
             nav a.active {
-                background: var(--primary-color);
-                color: white;
-            }
-
-            nav a.active::after {
-                display: none;
+                background: #dbeafe;
+                color: var(--primary-dark);
             }
 
             nav a i {
@@ -349,7 +321,7 @@
 
             nav .logout-btn {
                 color: var(--text-primary) !important;
-                background: var(--light-bg) !important;
+                background: #f8fafc !important;
                 border: 1px solid #e2e8f0;
                 width: 100%;
                 display: flex !important;
@@ -382,6 +354,7 @@
 
             .card {
                 padding: 16px;
+                border-radius: 14px;
             }
 
             .card-header h2 {
@@ -412,10 +385,9 @@
                 max-width: 160px;
             }
 
-            .logo-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 18px;
+            .logo-image {
+                width: 72px;
+                height: 72px;
             }
 
             nav {
@@ -484,7 +456,7 @@
         .nav-toggle {
             background: transparent;
             border: none;
-            color: white;
+                color: var(--primary-color);
             font-size: 22px;
             align-items: center;
             justify-content: center;
@@ -513,12 +485,12 @@
         }
 
         nav .logout-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: #eff6ff;
+            color: var(--primary-color);
             text-decoration: none;
             padding: 10px 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            border: 1px solid #dbeafe;
+            border-radius: 999px;
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 1rem;
@@ -529,11 +501,11 @@
         }
 
             nav .logout-btn:hover {
-                background: rgba(255, 255, 255, 0.2);
+                background: #dbeafe;
                 transform: translateY(-1px);
             }
  
-        .titlee { color: white; }
+            .titlee { color: var(--text-primary); }
         </style>
 </head>
 <body>
@@ -567,9 +539,7 @@
     <header>
         <div class="header-container">
             <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-traffic-light"></i>
-                </div>
+                <img src="~/images/logo.png" alt="شعار النظام" class="logo-image" />
                 <a asp-controller="Home" asp-action="Index" class="logo-text no-underline titlee officer-brand-link">نظام المخالفات المرورية : فرع الجفرة</a>
             </div>
             <!-- Mobile nav toggle (visible on smaller screens) -->

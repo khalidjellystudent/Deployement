@@ -1,142 +1,379 @@
 ﻿@model OfficerDashboardViewModel
 @{
-    ViewData["Title"] = "Officer Dashboard";
+    ViewData["Title"] = "لوحة تحكم الموظف";
     Layout = "_OfficerLayout";
 }
+
 @section Styles {
     <link href="~/css/dashboardstylesheet.css" rel="stylesheet" asp-append-version="true" />
+
+    <style>
+        .officer-dashboard-page {
+            max-width: 1200px;
+            margin-inline: auto;
+            color: #0f172a;
+        }
+
+        .dashboard-hero {
+            border: 1px solid #dbeafe;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 62%, #f8fafc 100%);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+        }
+
+        .dashboard-hero__inner {
+            padding: 1.35rem 1.5rem;
+        }
+
+        .dashboard-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            background: rgba(29, 78, 216, 0.1);
+            color: #1d4ed8;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .dashboard-title {
+            margin: 0.85rem 0 0.35rem;
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .dashboard-subtitle {
+            margin-bottom: 0;
+            color: #475569;
+            line-height: 1.75;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: flex-start;
+        }
+
+        .dashboard-actions .btn {
+            border-radius: 12px;
+            padding-inline: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dashboard-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .dashboard-stat-card,
+        .dashboard-panel {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .dashboard-stat-card {
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-stat-card::after {
+            content: "";
+            position: absolute;
+            inset-inline-start: 0;
+            inset-block-end: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--stat-accent, #1d4ed8);
+        }
+
+        .dashboard-stat-label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-stat-value {
+            margin: 0;
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .dashboard-stat-note {
+            display: block;
+            margin-top: 0.35rem;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .dashboard-stat-icon {
+            position: absolute;
+            inset-inline-end: 1rem;
+            inset-block-start: 1rem;
+            font-size: 2rem;
+            color: var(--stat-accent, #1d4ed8);
+            opacity: 0.14;
+        }
+
+        .dashboard-panel .card-header {
+            background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+            border-bottom: 1px solid #edf2f7;
+            padding: 1rem 1.25rem;
+        }
+
+        .dashboard-panel .card-body {
+            padding: 1.25rem;
+            color: #0f172a;
+        }
+
+        .dashboard-section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .dashboard-section-title i {
+            color: #1d4ed8;
+        }
+
+        .dashboard-table-wrap thead th {
+            color: #475569;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .dashboard-table-wrap tbody td {
+            color: #111827;
+            vertical-align: middle;
+        }
+
+        .dashboard-table-wrap tbody tr {
+            transition: background-color 0.18s ease;
+        }
+
+        .dashboard-table-wrap tbody tr:hover {
+            background: rgba(37, 99, 235, 0.04);
+        }
+
+        .recent-card-list {
+            display: none;
+        }
+
+        .recent-ticket-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+        }
+
+        .recent-ticket-card p {
+            color: #334155;
+        }
+
+        .progress {
+            height: 12px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        @@media (max-width: 991px) {
+            .dashboard-stat-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @@media (max-width: 767px) {
+            .dashboard-hero__inner,
+            .dashboard-panel .card-header,
+            .dashboard-panel .card-body {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .dashboard-stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recent-table-wrap {
+                display: none;
+            }
+
+            .recent-card-list {
+                display: block;
+            }
+
+            .dashboard-actions,
+            .dashboard-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
 }
 
-<div class="container-fluid">
-        <h2 class="mb-4">
-            <i class="fas fa-tachometer-alt me-2"></i>
-            Dashboard
-        </h2>
-
-        <!-- Stats Cards -->
-        <div class="row">
-            <div class="col-12 col-sm-6 col-md-3 mb-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">Tickets Today</h5>
-                        <h2>@Model.TicketsToday</h2>
-                        <i class="fas fa-ticket-alt float-end fa-2x text-primary opacity-25"></i>
-                    </div>
+<div class="officer-dashboard-page" dir="rtl">
+    <div class="dashboard-hero mb-4">
+        <div class="dashboard-hero__inner">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
+                    <span class="dashboard-kicker">
+                        <i class="fas fa-tachometer-alt"></i>
+                        لوحة المتابعة اليومية
+                    </span>
+                    <h1 class="dashboard-title">لوحة التحكم</h1>
+                    <p class="dashboard-subtitle">ملخص سريع للمخالفات، حالة السداد، وآخر السجلات المسجلة خلال اليوم.</p>
                 </div>
-            </div>
 
-            <div class="col-12 col-sm-6 col-md-3 mb-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">Paid Tickets</h5>
-                        <h2>@Model.PaidTickets</h2>
-                        <i class="fas fa-check-circle float-end fa-2x text-success opacity-25"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-3 mb-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title text-danger">Pending Tickets</h5>
-                        <h2>@Model.PendingTickets</h2>
-                        <i class="fas fa-exclamation-triangle float-end fa-2x text-danger opacity-25"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-3 mb-4">
-                <div class="card dashboard-card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title text-info">Total Tickets</h5>
-                        <h2>@Model.TotalTickets</h2>
-                        <i class="fas fa-clipboard-list float-end fa-2x text-info opacity-25"></i>
-                    </div>
+                <div class="dashboard-actions align-self-start">
+                    <a asp-action="IssueTicket" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        إصدار مخالفة
+                    </a>
+                    <a asp-action="ScanPlate" class="btn btn-outline-primary">
+                        <i class="fas fa-camera"></i>
+                        مسح اللوحة
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Recent Tickets -->
-        <div class="card shadow-sm mt-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-list me-2"></i>
-                    Recent Violations
-                </h5>
-            </div>
+    <div class="dashboard-stat-grid">
+        <div class="dashboard-stat-card" style="--stat-accent:#1d4ed8;">
+            <i class="fas fa-ticket-alt dashboard-stat-icon"></i>
+            <span class="dashboard-stat-label">مخالفات اليوم</span>
+            <p class="dashboard-stat-value">@Model.TicketsToday</p>
+            <span class="dashboard-stat-note">السجلات التي تم إصدارها اليوم</span>
+        </div>
 
-            <div class="card-body">
-                <!-- Desktop table -->
-                <div class="table-responsive recent-table text-center">
-                    <table class="table table-hover table-borderless align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Ticket #</th>
-                                <th>Plate</th>
-                                <th>Violation</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Fine Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var ticket in Model.RecentTickets)
-                            {
-                                <tr class="officer-clickable-row" data-href="@Url.Action("DetailedTicket", new { id = ticket.Ticket_Id })">
-                                    <td>T-@ticket.Ticket_Id.ToString("D4")</td>
-                                    <td>@ticket.Plate_Number</td>
-                                    <td>@ticket.Violations</td>
-                                    <td>@ticket.Ticket_Time.ToString("MM/dd/yyyy")</td>
-                                    <td><span class="badge @GetStatusBadgeClass(ticket.Status)">@ticket.Status</span></td>
-                                    <td>@ticket.FineAmount.ToString("C")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        <div class="dashboard-stat-card" style="--stat-accent:#10b981;">
+            <i class="fas fa-check-circle dashboard-stat-icon"></i>
+            <span class="dashboard-stat-label">المخالفات المدفوعة</span>
+            <p class="dashboard-stat-value">@Model.PaidTickets</p>
+            <span class="dashboard-stat-note">تمت تسويتها بالكامل</span>
+        </div>
+
+        <div class="dashboard-stat-card" style="--stat-accent:#ef4444;">
+            <i class="fas fa-exclamation-triangle dashboard-stat-icon"></i>
+            <span class="dashboard-stat-label">المخالفات المعلقة</span>
+            <p class="dashboard-stat-value">@Model.PendingTickets</p>
+            <span class="dashboard-stat-note">تحتاج متابعة أو سداد</span>
+        </div>
+
+        <div class="dashboard-stat-card" style="--stat-accent:#0ea5e9;">
+            <i class="fas fa-clipboard-list dashboard-stat-icon"></i>
+            <span class="dashboard-stat-label">إجمالي المخالفات</span>
+            <p class="dashboard-stat-value">@Model.TotalTickets</p>
+            <span class="dashboard-stat-note">جميع المخالفات المسجلة</span>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-lg-8">
+            <div class="dashboard-panel h-100">
+                <div class="card-header">
+                    <h2 class="dashboard-section-title">
+                        <i class="fas fa-list"></i>
+                        أحدث المخالفات
+                    </h2>
                 </div>
-
-                <!-- Mobile stacked list -->
-                <div class="recent-list">
+                <div class="card-body">
                     @if (Model.RecentTickets.Any())
                     {
-                        @foreach (var ticket in Model.RecentTickets)
-                        {
-                            <div class="card ticket-card mb-3">
-                                <div class="card-body p-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <strong>T-@ticket.Ticket_Id.ToString("D4")</strong>
-                                        <span class="badge @GetStatusBadgeClass(ticket.Status)">@ticket.Status</span>
+                        <div class="table-responsive dashboard-table-wrap recent-table-wrap text-center">
+                            <table class="table table-hover table-borderless align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>رقم المخالفة</th>
+                                        <th>اللوحة</th>
+                                        <th>المخالفة</th>
+                                        <th>التاريخ</th>
+                                        <th>الحالة</th>
+                                        <th>قيمة الغرامة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ticket in Model.RecentTickets)
+                                    {
+                                        <tr class="officer-clickable-row" data-href="@Url.Action("DetailedTicket", new { id = ticket.Ticket_Id })">
+                                            <td>T-@ticket.Ticket_Id.ToString("D4")</td>
+                                            <td>@ticket.Plate_Number</td>
+                                            <td>@ticket.Violations</td>
+                                            <td>@ticket.Ticket_Time.ToString("dd/MM/yyyy")</td>
+                                            <td><span class="badge @GetStatusBadgeClass(ticket.Status)">@GetStatusText(ticket.Status)</span></td>
+                                            <td>@ticket.FineAmount.ToString("0.##")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="recent-card-list">
+                            @foreach (var ticket in Model.RecentTickets)
+                            {
+                                <div class="recent-ticket-card mb-3">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
+                                            <strong>T-@ticket.Ticket_Id.ToString("D4")</strong>
+                                            <span class="badge @GetStatusBadgeClass(ticket.Status)">@GetStatusText(ticket.Status)</span>
+                                        </div>
+
+                                        <p class="mb-1">
+                                            <i class="fas fa-car ms-1"></i>@ticket.Plate_Number
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-exclamation-circle ms-1"></i>@ticket.Violations
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-calendar-alt ms-1"></i>@ticket.Ticket_Time.ToString("dd/MM/yyyy")
+                                        </p>
+                                        <p class="mb-3">
+                                            <i class="fas fa-coins ms-1"></i>@ticket.FineAmount.ToString("0.##")
+                                        </p>
+
+                                        <a asp-action="DetailedTicket"
+                                           asp-route-id="@ticket.Ticket_Id"
+                                           class="btn btn-sm btn-outline-primary w-100">
+                                            <i class="fas fa-eye"></i>
+                                            عرض التفاصيل
+                                        </a>
                                     </div>
-
-                                    <p class="mb-1">
-                                        <i class="fas fa-car me-1"></i>@ticket.Plate_Number
-                                    </p>
-                                    <p class="mb-1">
-                                        <i class="fas fa-exclamation-circle me-1"></i>@ticket.Violations
-                                    </p>
-                                    <p class="mb-1">
-                                        <i class="fas fa-calendar-alt me-1"></i>@ticket.Ticket_Time.ToString("MM/dd/yyyy")
-                                    </p>
-                                    <p class="mb-1">
-                                        <i class="fas fa-dollar-sign me-1"></i>@ticket.FineAmount.ToString("C")
-                                    </p>
-
-                                    <a asp-action="DetailedTicket"
-                                       asp-route-id="@ticket.Ticket_Id"
-                                       class="btn btn-sm btn-outline-primary w-100 mt-2">
-                                        <i class="fas fa-eye me-1"></i>View Details
-                                    </a>
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
                     }
                     else
                     {
                         <div class="text-center py-4">
                             <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No tickets issued yet.</p>
+                            <p class="text-muted mb-3">لم يتم إصدار أي مخالفات حتى الآن.</p>
                             <a asp-action="IssueTicket" class="btn btn-primary">
-                                <i class="fas fa-plus me-1"></i>Issue Your First Ticket
+                                <i class="fas fa-plus"></i>
+                                إصدار أول مخالفة
                             </a>
                         </div>
                     }
@@ -144,68 +381,76 @@
             </div>
         </div>
 
-        <!-- Additional Statistics -->
-        <div class="row mt-4">
-            <div class="col-12 col-sm-6 col-md-6 mb-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-bar me-2"></i>
-                            Monthly Statistics
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <h4>@Model.MonthlyTickets Tickets This Month</h4>
-                        <p class="text-muted">Keep up the good work!</p>
-                    </div>
+        <div class="col-lg-4">
+            <div class="dashboard-panel mb-4">
+                <div class="card-header">
+                    <h2 class="dashboard-section-title">
+                        <i class="fas fa-chart-bar"></i>
+                        إحصائيات الشهر
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <p class="fs-4 fw-bold mb-2">@Model.MonthlyTickets مخالفة هذا الشهر</p>
+                    <p class="text-muted mb-0">سجل شهري واضح يساعد على متابعة الأداء.</p>
                 </div>
             </div>
 
-            <div class="col-12 col-sm-6 col-md-6 mb-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-trophy me-2"></i>
-                            Performance
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <h4>@Model.PaidPercentage.ToString("F1")% Paid Rate</h4>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-success"
-                                 style="width: @Model.PaidPercentage.ToString("F0")%">
-                                @Model.PaidPercentage.ToString("F0")%
-                            </div>
+            <div class="dashboard-panel">
+                <div class="card-header">
+                    <h2 class="dashboard-section-title">
+                        <i class="fas fa-trophy"></i>
+                        الأداء
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <p class="fs-5 fw-bold mb-2">@Model.PaidPercentage.ToString("F1")% نسبة السداد</p>
+                    <div class="progress mt-2 mb-3">
+                        <div class="progress-bar bg-success"
+                             style="width: @Model.PaidPercentage.ToString("F0")%">
+                            @Model.PaidPercentage.ToString("F0")%
                         </div>
-                        <small class="text-muted">
-                            @Model.PaidTickets out of @Model.TotalTickets tickets paid
-                        </small>
                     </div>
+                    <small class="text-muted">
+                        تم سداد @Model.PaidTickets من أصل @Model.TotalTickets مخالفة
+                    </small>
                 </div>
             </div>
         </div>
     </div>
-    @functions {
-        string GetStatusBadgeClass(string status)
-        {
-            return status switch
-            {
-                "Paid" => "bg-success",
-                "Pending" => "bg-warning",
-                "Rejected" => "bg-danger",
-                "UnderProcess" => "bg-info text-white",
+</div>
 
-                _ => "bg-secondary"
-            };
-        }
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Paid" => "bg-success",
+            "Pending" => "bg-warning text-dark",
+            "Rejected" => "bg-danger",
+            "UnderProcess" => "bg-info text-white",
+            _ => "bg-secondary"
+        };
     }
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll(".officer-clickable-row").forEach(row => {
-                row.addEventListener("click", () => {
-                    window.location.href = row.dataset.href;
-                });
+
+    string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Paid" => "مدفوعة",
+            "Pending" => "معلقة",
+            "Rejected" => "مرفوضة",
+            "UnderProcess" => "قيد المعالجة",
+            _ => status
+        };
+    }
+}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".officer-clickable-row").forEach(row => {
+            row.addEventListener("click", () => {
+                window.location.href = row.dataset.href;
             });
         });
-    </script>
-</div>
+    });
+</script>

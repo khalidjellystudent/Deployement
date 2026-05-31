@@ -1,203 +1,515 @@
-﻿@model TicketSystem.Models.Ticket
+@model TicketSystem.Models.Ticket
 @inject TicketSystem.Services.IQrCodeService QrService
 @{
-    ViewData["Title"] = $"Ticket #{Model.Ticket_Id}";
+    ViewData["Title"] = $"تفاصيل المخالفة #{Model.Ticket_Id}";
     Layout = "_OfficeLayout";
+
+    var ticketUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Ticket/Open/{Model.Ticket_Id}";
+    var qrDataUri = QrService.GeneratePngDataUri(ticketUrl, 10);
 }
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        
-        <link href="~/css/officelayoutstylesheet.css" rel="stylesheet" />
+@section Styles {
+    <style>
+        .office-ticket-page {
+            max-width: 1100px;
+            margin-inline: auto;
+            color: #0f172a;
+        }
 
-    </head>
-    <body>
-        @{ var ticketUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Ticket/Open/{Model.Ticket_Id}"; var qrDataUri = QrService.GeneratePngDataUri(ticketUrl, 10); }
+        .office-ticket-hero {
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+        }
 
-        <div class="container-fluid">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>
-                        <i class="fas fa-ticket-alt me-2"></i>
-                        Ticket #@Model.Ticket_Id
-                        <span class="badge @GetStatusBadgeClass(Model.Status) ms-2">
-                            @Model.Status
-                        </span>
-                    </h2>
-                    <a asp-action="SearchTickets" asp-route-plateNumber="@Model.Plate_Number"
-                       class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-2"></i> All ticketsfor P_N
+        .office-ticket-hero__inner {
+            padding: 1.35rem 1.5rem;
+        }
+
+        .office-ticket-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .office-ticket-title {
+            margin: 0.8rem 0 0.4rem;
+            font-size: clamp(1.45rem, 3vw, 2.1rem);
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .office-ticket-subtitle {
+            margin-bottom: 0;
+            color: #64748b;
+            line-height: 1.7;
+        }
+
+        .office-ticket-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+
+        .office-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .office-summary-card,
+        .office-panel {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .office-summary-card {
+            padding: 1rem;
+        }
+
+        .office-summary-label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin-bottom: 0.45rem;
+        }
+
+        .office-summary-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111827;
+            word-break: break-word;
+        }
+
+        .office-summary-hint {
+            display: block;
+            margin-top: 0.35rem;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+        .office-panel .card-header {
+            background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+            border-bottom: 1px solid #edf2f7;
+            padding: 1rem 1.25rem;
+        }
+
+        .office-panel .card-body {
+            padding: 1.25rem;
+            color: #0f172a;
+        }
+
+        .office-section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .office-section-title i {
+            color: #1d4ed8;
+        }
+
+        .office-details-list dt {
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .office-details-list dd {
+            color: #111827;
+            word-break: break-word;
+            margin-bottom: 0.75rem;
+        }
+
+        .office-note-box {
+            padding: 1rem;
+            border: 1px solid #eef2f7;
+            border-radius: 16px;
+            background: #fafafa;
+            color: #111827;
+        }
+
+        .office-note-box p {
+            margin-bottom: 0;
+            line-height: 1.7;
+            color: #111827;
+        }
+
+        .office-qr-block {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid #e6eefb;
+            border-radius: 18px;
+            background: #f8fbff;
+        }
+
+        .office-qr-image {
+            width: 150px;
+            height: 150px;
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            flex: 0 0 auto;
+        }
+
+        .office-qr-copy p {
+            margin-bottom: 0.2rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .office-qr-copy small {
+            word-break: break-all;
+            color: #64748b;
+        }
+
+        .office-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: space-between;
+        }
+
+        .office-actions .action-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .office-actions .btn {
+            min-width: 0;
+            border-radius: 12px;
+            padding-inline: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+        }
+
+        @@media (max-width: 991px) {
+            .office-summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .office-ticket-hero__inner,
+            .office-panel .card-body,
+            .office-panel .card-header {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .office-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .office-qr-block {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .office-qr-image {
+                width: 120px;
+                height: 120px;
+            }
+
+            .office-actions,
+            .office-actions .action-group {
+                width: 100%;
+            }
+
+            .office-actions .btn,
+            .office-actions form {
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+<div class="office-ticket-page" dir="rtl">
+    <div class="office-ticket-hero mb-4">
+        <div class="office-ticket-hero__inner">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
+                    <span class="office-ticket-kicker">
+                        <i class="fas fa-ticket-alt"></i>
+                        صفحة التفاصيل
+                    </span>
+                    <h1 class="office-ticket-title">تفاصيل المخالفة رقم @Model.Ticket_Id</h1>
+                    <p class="office-ticket-subtitle">معلومات المخالفة، السائق، والملاحظات في صفحة واحدة واضحة ومباشرة.</p>
+                </div>
+
+                <span class="badge @GetStatusBadgeClass(Model.Status) align-self-start fs-6 px-3 py-2 rounded-pill">
+                    @GetStatusText(Model.Status)
+                </span>
+            </div>
+
+            <div class="office-ticket-meta">
+                <span class="badge bg-light text-dark rounded-pill px-3 py-2">
+                    <i class="fas fa-car ms-1"></i> @Model.Plate_Number
+                </span>
+                <span class="badge bg-light text-dark rounded-pill px-3 py-2">
+                    <i class="fas fa-calendar-day ms-1"></i> @Model.Ticket_Time.ToString("yyyy/MM/dd")
+                </span>
+                <span class="badge bg-light text-dark rounded-pill px-3 py-2">
+                    <i class="fas fa-coins ms-1"></i> @Model.FineAmount.ToString("0.##")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="office-summary-grid">
+        <div class="office-summary-card">
+            <span class="office-summary-label">المبلغ المستحق</span>
+            <div class="office-summary-value">@Model.FineAmount.ToString("0.##")</div>
+            <span class="office-summary-hint">قيمة الغرامة المسجلة</span>
+        </div>
+        <div class="office-summary-card">
+            <span class="office-summary-label">آخر موعد للسداد</span>
+            <div class="office-summary-value">@Model.Due_Date.ToShortDateString()</div>
+            <span class="office-summary-hint">الموعد المحدد للإجراء</span>
+        </div>
+        <div class="office-summary-card">
+            <span class="office-summary-label">الحالة</span>
+            <div class="office-summary-value">@GetStatusText(Model.Status)</div>
+            <span class="office-summary-hint">@GetStatusHint(Model.Status)</span>
+        </div>
+        <div class="office-summary-card">
+            <span class="office-summary-label">المرجع</span>
+            <div class="office-summary-value">#@Model.Ticket_Id</div>
+            <span class="office-summary-hint">يمكن فتحه عبر رمز QR</span>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-lg-7">
+            <div class="office-panel h-100">
+                <div class="card-header">
+                    <div class="office-section-title mb-0">
+                        <i class="fas fa-clipboard-list"></i>
+                        معلومات المخالفة
+                    </div>
+                </div>
+                <div class="card-body">
+                    <partial name="_TicketDetails" model="Model" view-data='new ViewDataDictionary(ViewData)
+                    {
+                        ["PlateLabel"] = "رقم اللوحة",
+                        ["ViolationsLabel"] = "نوع المخالفة",
+                        ["LocationLabel"] = "موقع المخالفة",
+                        ["IssuedOnLabel"] = "تاريخ الإصدار",
+                        ["DueDateLabel"] = "تاريخ الاستحقاق",
+                        ["IssuedByLabel"] = "صادر بواسطة",
+                        ["EvidenceLabel"] = "صورة المخالفة"
+                    }' />
+
+                    <div class="mt-4">
+                        <div class="office-section-title">
+                            <i class="fas fa-qrcode"></i>
+                            رمز الوصول السريع
+                        </div>
+                        <div class="office-qr-block">
+                            <img src="@qrDataUri" alt="Ticket QR" class="office-qr-image" />
+                            <div class="office-qr-copy">
+                                <p>امسح الرمز لفتح تفاصيل المخالفة</p>
+                                <small>@ticketUrl</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="office-panel h-100">
+                <div class="card-header">
+                    <div class="office-section-title mb-0">
+                        <i class="fas fa-user"></i>
+                        بيانات السائق
+                    </div>
+                </div>
+                <div class="card-body">
+                    <dl class="row office-details-list mb-0">
+                        <dt class="col-sm-4">الاسم الكامل</dt>
+                        <dd class="col-sm-8">@Model.Users?.Name</dd>
+
+                        <dt class="col-sm-4">البريد الإلكتروني</dt>
+                        <dd class="col-sm-8">@Model.Email</dd>
+
+                        <dt class="col-sm-4">حالة الرخصة</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @GetLicenseBadgeClass(Model.Users?.License_Status ?? string.Empty)">
+                                @Model.Users?.License_Status
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">العنوان</dt>
+                        <dd class="col-sm-8">@Model.Users?.Address</dd>
+
+                        <dt class="col-sm-4">فصيلة الدم</dt>
+                        <dd class="col-sm-8">@Model.Users?.Blood_Type</dd>
+
+                        <dt class="col-sm-4">تاريخ الميلاد</dt>
+                        <dd class="col-sm-8">@Model.Users?.Birth_Date.ToShortDateString()</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="office-panel">
+                <div class="card-header">
+                    <div class="office-section-title mb-0">
+                        <i class="fas fa-note-sticky"></i>
+                        ملاحظات الموظف
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (string.IsNullOrWhiteSpace(Model.Notes))
+                    {
+                        <div class="office-note-box">
+                            <p>لا توجد ملاحظات إضافية مسجلة.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="office-note-box">
+                            <p>@Model.Notes</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.VoiceReportPath))
+                    {
+                        <div class="mt-3">
+                            <div class="office-section-title mb-2">
+                                <i class="fas fa-microphone-lines"></i>
+                                التقرير الصوتي
+                            </div>
+                            <audio src="@Model.VoiceReportPath" controls class="w-100"></audio>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="office-panel mt-4">
+        <div class="card-body">
+            <div class="office-actions">
+                <div class="action-group">
+                    <a asp-action="SearchTickets" asp-route-plateNumber="@Model.Plate_Number" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-right"></i>
+                        العودة إلى البحث
+                    </a>
+                    <a asp-action="Receipt" asp-route-id="@Model.Ticket_Id" target="_blank" rel="noopener" class="btn btn-outline-dark">
+                        <i class="fas fa-print"></i>
+                        طباعة الإيصال
                     </a>
                 </div>
 
-                <div class="row">
-                    <!-- Left Column - Ticket Details -->
-                    <div class="col-lg-6 mb-4">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i> Violation Details</h5>
-                            </div>
-                            <div class="card-body">
-                                <dl class="row">
-                                    <dt class="col-sm-4">Plate Number</dt>
-                                    <dd class="col-sm-8">@Model.Plate_Number</dd>
-
-                                    <dt class="col-sm-4">Violations</dt>
-                                    <dd class="col-sm-8">@Model.Violations</dd>
-
-                                    <dt class="col-sm-4">Location</dt>
-                                    <dd class="col-sm-8">@Model.Violation_Place</dd>
-
-                                    <dt class="col-sm-4">Issued On</dt>
-                                    <dd class="col-sm-8">@Model.Ticket_Time.ToString("f")</dd>
-
-                                    <dt class="col-sm-4">Due Date</dt>
-                                    <dd class="col-sm-8">@Model.Due_Date.ToShortDateString()</dd>
-
-                                    <dt class="col-sm-4">Issued By</dt>
-                                    <dd class="col-sm-8">@Model.IssuedBy</dd>
-                                </dl>
-                                <div class="mt-3 d-flex align-items-center gap-3">
-                                    <div>
-                                        <img src="@qrDataUri" alt="Ticket QR" style="width:160px;height:160px;border:1px solid #eaeaea;padding:6px;background:#fff;border-radius:6px;" />
-                                    </div>
-                                    <div>
-                                        <p class="mb-1 fw-bold">Scan to view (User portal)</p>
-                                        <small class="text-muted">Opens: @ticketUrl</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column - Driver Information -->
-                    <div class="col-lg-6 mb-4">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0"><i class="fas fa-user me-2"></i> Driver Information</h5>
-                            </div>
-                            <div class="card-body">
-                                <dl class="row">
-                                    <dt class="col-sm-4">Full Name</dt>
-                                    <dd class="col-sm-8">@Model.Users?.Name</dd>
-
-                                    <dt class="col-sm-4">Email</dt>
-                                    <dd class="col-sm-8">@Model.Email</dd>
-
-                                    <dt class="col-sm-4">License Status</dt>
-                                    <dd class="col-sm-8">
-                                        <span class="badge @GetLicenseBadgeClass(Model.Users?.License_Status)">
-                                            @Model.Users?.License_Status
-                                        </span>
-                                    </dd>
-
-                                    <dt class="col-sm-4">Address</dt>
-                                    <dd class="col-sm-8">@Model.Users?.Address</dd>
-
-                                    <dt class="col-sm-4">Blood Type</dt>
-                                    <dd class="col-sm-8">@Model.Users?.Blood_Type</dd>
-
-                                    <dt class="col-sm-4">Date of Birth</dt>
-                                    <dd class="col-sm-8">@Model.Users?.Birth_Date.ToShortDateString()</dd>
-                                </dl>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Full Width Row - Additional Notes -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0"><i class="fas fa-edit me-2"></i> Officer Notes</h5>
-                            </div>
-                            <div class="card-body">
-                                @if (string.IsNullOrWhiteSpace(Model.Notes))
-                                {
-                                    <p class="text-muted">No additional notes recorded</p>
-                                }
-                                else
-                                {
-                                    <p>@Model.Notes</p>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons  for pending tickets -->
-                <div class="mt-4 d-flex justify-content-end">
+                <div class="action-group">
                     @if (Model.Status == "Pending")
                     {
-                        <form asp-action="ProcessPayment" method="post">
+                        <form asp-action="ProcessPayment" method="post" class="m-0">
                             <input type="hidden" name="ticketId" value="@Model.Ticket_Id" />
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="fas fa-lock me-1"></i> Ticket Payed Cash
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-lock"></i>
+                                تم الدفع نقدًا
                             </button>
                         </form>
                     }
-                </div>
 
-                <!-- Action Buttons  for under process tickets -->
-                <div class="mt-4 d-flex justify-content-end">
                     @if (Model.Status == "UnderProcess")
                     {
-                        <!-- I need to add delete buttom her in case the tickets appeal go throught -->
-                        <form asp-action="DeleteTicket" method="post">
+                        <form asp-action="DeleteTicket" method="post" class="m-0">
                             <input type="hidden" name="Ticket_Id" value="@Model.Ticket_Id" />
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this ticket?');">
-                                <i class="fas fa-trash-alt"></i> Delete
+                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Delete this ticket?');">
+                                <i class="fas fa-trash-alt"></i>
+                                حذف المخالفة
                             </button>
                         </form>
 
-                        <form asp-action="DenieRevoke_Ticket" method="post">
+                        <form asp-action="DenieRevoke_Ticket" method="post" class="m-0">
                             <input type="hidden" name="ticketId" value="@Model.Ticket_Id" />
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="fas fa-lock me-1"></i> Denie Revoke
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-lock"></i>
+                                رفض طلب الإلغاء
                             </button>
                         </form>
                     }
                 </div>
+            </div>
         </div>
-    <h2 class="text-decoration-underline text-bg-danger"> there should be something that restrict the payed cash functon like a device that calculate money to the vault or there should be a way to follow who mark the ticket as paid like the user email or name </h2>
-    @functions
-    {
-        //      for tickets status 
-        string GetStatusBadgeClass(string status)
-        {
-            return status switch
-            {
-                "Paid" => "bg-success",
-                "Pending" => "bg-warning",
-                "Rejected" => "bg-danger",
-                "UnderProcess" => "bg-info text-white",
+    </div>
+</div>
 
-                _ => "bg-secondary"
-            };
-        }
-        // for driver license 
-        string GetLicenseBadgeClass(string status)
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
         {
-            return status switch
-            {
-                "Valid" => "bg-success",
-                "Expired" => "bg-warning",
-                "Suspended" => "bg-danger",
-                _ => "bg-secondary"
-            };
-        }
+            "Paid" => "bg-success",
+            "Pending" => "bg-warning text-dark",
+            "UnderProcess" => "bg-info text-white",
+            "Rejected" => "bg-danger",
+            _ => "bg-secondary"
+        };
     }
 
+    string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Paid" => "مدفوعة",
+            "Pending" => "قيد الانتظار",
+            "UnderProcess" => "قيد المعالجة",
+            "Rejected" => "مرفوضة",
+            _ => status
+        };
+    }
 
-    </body>
-</html>
+    string GetStatusHint(string status)
+    {
+        return status switch
+        {
+            "Paid" => "تمت تسوية المخالفة ويمكن حفظ الإيصال.",
+            "Pending" => "المخالفة بانتظار السداد.",
+            "UnderProcess" => "المخالفة قيد المراجعة أو الإجراء.",
+            "Rejected" => "تم رفض الطلب المرتبط بهذه المخالفة.",
+            _ => "راجع حالة المخالفة من الصفحة الحالية."
+        };
+    }
 
-
-
-
-
-
-
-
-
-
+    string GetLicenseBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Valid" => "bg-success",
+            "Expired" => "bg-warning text-dark",
+            "Suspended" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

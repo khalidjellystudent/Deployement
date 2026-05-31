@@ -7,6 +7,8 @@ namespace TicketSystem.Services;
 public class PlateRecognizerClient : IPlateRecognizerClient
 {
     private const string PlaceholderToken = "<956a7c46a0ca0a929fb2a25c01dda6450d25e916>";
+    private const string EnvTokenKey = "PLATE_RECOGNIZER_API_TOKEN";
+    private const string EnvTokenKeyAlt = "PlateRecognizer__ApiToken";
 
     private readonly HttpClient _http;
     private readonly PlateRecognizerOptions _opts;
@@ -18,7 +20,7 @@ public class PlateRecognizerClient : IPlateRecognizerClient
         _opts = opts.Value;
         _logger = logger;
 
-        var token = _opts.ApiToken?.Trim() ?? string.Empty;
+        var token = ResolveToken();
 
         _logger.LogInformation("PlateRecognizer ApiToken length: {Length}", token.Length);
 
@@ -26,7 +28,7 @@ public class PlateRecognizerClient : IPlateRecognizerClient
         {
             _logger.LogWarning(
                 "Plate Recognizer ApiToken is missing or still set to placeholder. " +
-                "Set PlateRecognizer:ApiToken using User Secrets or an environment variable before using LPR.");
+                "Set PlateRecognizer:ApiToken, PLATE_RECOGNIZER_API_TOKEN, or PlateRecognizer__ApiToken before using LPR.");
         }
         else
         {
@@ -37,6 +39,8 @@ public class PlateRecognizerClient : IPlateRecognizerClient
 
     public async Task<PlateResult?> RecognizeAsync(Stream imageStream, string? regions = null, int? cameraId = null)
     {
+        EnsureConfigured();
+
         using var form = new MultipartFormDataContent();
         var imgContent = new StreamContent(imageStream);
         imgContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
@@ -63,6 +67,39 @@ public class PlateRecognizerClient : IPlateRecognizerClient
         {
             _logger.LogError(ex, "Failed to call LPR service");
             throw;
+        }
+    }
+
+    private string ResolveToken()
+    {
+        var token = _opts.ApiToken?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(token) && !string.Equals(token, PlaceholderToken, StringComparison.OrdinalIgnoreCase))
+        {
+            return token;
+        }
+
+        var envToken = Environment.GetEnvironmentVariable(EnvTokenKey)?.Trim();
+        if (!string.IsNullOrWhiteSpace(envToken))
+        {
+            return envToken;
+        }
+
+        envToken = Environment.GetEnvironmentVariable(EnvTokenKeyAlt)?.Trim();
+        if (!string.IsNullOrWhiteSpace(envToken))
+        {
+            return envToken;
+        }
+
+        return string.Empty;
+    }
+
+    private void EnsureConfigured()
+    {
+        if (_http.DefaultRequestHeaders.Authorization is null)
+        {
+            throw new InvalidOperationException(
+                "Plate Recognizer is not configured. Set PlateRecognizer:ApiToken, PLATE_RECOGNIZER_API_TOKEN, or PlateRecognizer__ApiToken on the deployment host.");
         }
     }
 }

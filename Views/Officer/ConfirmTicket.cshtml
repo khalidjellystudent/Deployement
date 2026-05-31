@@ -23,7 +23,7 @@
                 <h4>Ticket Information</h4>
             </div>
             <div class="card-body">
-                <dl class="row">
+                <dl class="row">s
                     <dt class="col-sm-3">Violations:</dt>
                     <dd class="col-sm-9">@Model.Violations</dd>
 
@@ -47,6 +47,16 @@
                     <dt class="col-sm-3">Issued By:</dt>
                     <dd class="col-sm-9">@Model.IssuedBy</dd>
                 </dl>
+
+                @if (!string.IsNullOrWhiteSpace(Model.EvidenceImageTempPath))
+                {
+                    <div class="mt-3">
+                        <label class="form-label">Evidence Image</label>
+                        <div>
+                            <img src="@Model.EvidenceImageTempPath" alt="Evidence image" class="img-fluid rounded border" style="max-height: 260px;" />
+                        </div>
+                    </div>
+                }
 
                 @if (!string.IsNullOrWhiteSpace(Model.VoiceReportPath))
                 {

@@ -8,7 +8,8 @@ using TicketSystem.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container FIRST
-var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+var conn = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Missing ConnectionStrings:DefaultConnection configuration.");
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(conn));
 
 // Authentication
@@ -28,6 +29,8 @@ builder.Services.AddHttpClient<IPlateRecognizerClient, PlateRecognizerClient>();
 
 // QR code generation
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
+// EDFali/DPay payment helper
+builder.Services.AddTransient<IEdfaliService, EdfaliService>();
 
 
 
@@ -39,15 +42,6 @@ var app = builder.Build();
 
 
 
-
-///   //// azura code
-///
-/*using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-}
-*/
 
 // Middleware ORDER IS CRITICAL
 if (!app.Environment.IsDevelopment())

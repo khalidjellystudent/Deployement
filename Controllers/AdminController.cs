@@ -122,7 +122,6 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult ResetPassword(ResetPasswordViewModel model)
     {

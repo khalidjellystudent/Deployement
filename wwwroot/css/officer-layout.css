@@ -1,12 +1,12 @@
 /* Officer layout enhancements (scoped, RTL-friendly) */
 :root {
-  --officer-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  --officer-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
 }
 
 /* Content wrapper so Officer pages feel consistent */
 .officer-content-wrapper {
   max-width: 1200px;
-  margin: 18px auto 36px;
+  margin: 24px auto 40px;
   padding: 0 16px;
 }
 
@@ -37,7 +37,7 @@
 .officer-nav-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.22);
+  background: rgba(15, 23, 42, 0.18);
   backdrop-filter: none;
   z-index: 990;
   opacity: 0;
@@ -51,8 +51,8 @@
 
 /* Nicer active state (works for desktop + mobile) */
 #officerNav a.active {
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(29, 78, 216, 0.08);
+  border: 1px solid rgba(29, 78, 216, 0.16);
 }
 
 @media (max-width: 992px) {
@@ -67,8 +67,8 @@
   }
 
   #officerNav a.active {
-    background: rgba(37, 99, 235, 0.08);
-    border: 1px solid rgba(37, 99, 235, 0.15);
+    background: rgba(29, 78, 216, 0.08);
+    border: 1px solid rgba(29, 78, 216, 0.16);
   }
 }
 

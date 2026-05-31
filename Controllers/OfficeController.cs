@@ -18,9 +18,10 @@ namespace TicketSystem.Controllers
             _db = context;
         }
         
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var model = await BuildOfficeDashboardAsync();
+            return View(model);
         }   
         public IActionResult ScanPlate()
         {
@@ -30,11 +31,17 @@ namespace TicketSystem.Controllers
         [HttpGet]
         public IActionResult ScanTicketQr()
         {
-            return View();
+            return View("ScanPlate");
         }
 
         [HttpGet]
         public async Task<IActionResult> Reports()
+        {
+            var model = await BuildOfficeDashboardAsync();
+            return View(model);
+        }
+
+        private async Task<OfficeReportsViewModel> BuildOfficeDashboardAsync()
         {
             var now = DateTime.Now;
             var startOfThisMonth = new DateTime(now.Year, now.Month, 1);
@@ -43,24 +50,19 @@ namespace TicketSystem.Controllers
             var startOfThisYear = new DateTime(now.Year, 1, 1);
             var startOfNextYear = startOfThisYear.AddYears(1);
 
-            // NOTE: Status values in this project are free-form strings.
-            // We'll treat "Paid" (case-insensitive) as paid, everything else as unpaid.
             var paidQuery = _db.Tickets.Where(t => t.Status != null && t.Status.ToLower() == "paid");
 
             var model = new OfficeReportsViewModel
             {
                 TotalUsers = await _db.Users.CountAsync(),
                 TotalTickets = await _db.Tickets.CountAsync(),
-
                 TicketsLastMonth = await _db.Tickets.CountAsync(t => t.Ticket_Time >= startOfLastMonth && t.Ticket_Time < startOfThisMonth),
                 TicketsThisYear = await _db.Tickets.CountAsync(t => t.Ticket_Time >= startOfThisYear && t.Ticket_Time < startOfNextYear),
-
                 PaidTickets = await paidQuery.CountAsync(),
             };
 
             model.UnpaidTickets = Math.Max(0, model.TotalTickets - model.PaidTickets);
 
-            // Monthly tickets for the current year (Jan..Dec)
             var monthly = await _db.Tickets
                 .Where(t => t.Ticket_Time >= startOfThisYear && t.Ticket_Time < startOfNextYear)
                 .GroupBy(t => t.Ticket_Time.Month)
@@ -75,7 +77,6 @@ namespace TicketSystem.Controllers
                 }
             }
 
-            // Tickets in the last 30 days (trend)
             var today = DateTime.Today;
             var startDay = today.AddDays(-29);
             var endExclusive = today.AddDays(1);
@@ -89,16 +90,17 @@ namespace TicketSystem.Controllers
             var dailyMap = daily.ToDictionary(x => x.Day.Date, x => x.Count);
             var labels = new string[30];
             var counts = new int[30];
+
             for (var i = 0; i < 30; i++)
             {
                 var d = startDay.AddDays(i);
                 labels[i] = d.ToString("MM-dd");
                 counts[i] = dailyMap.TryGetValue(d.Date, out var c) ? c : 0;
             }
+
             model.Last30DaysLabels = labels;
             model.Last30DaysTicketCounts = counts;
 
-            // Top violations (all-time) parsed from comma-separated string
             var violationStrings = await _db.Tickets
                 .AsNoTracking()
                 .Select(t => t.Violations)
@@ -125,7 +127,7 @@ namespace TicketSystem.Controllers
             model.TopViolationLabels = top.Select(x => x.Key).ToArray();
             model.TopViolationCounts = top.Select(x => x.Value).ToArray();
 
-            return View(model);
+            return model;
         }
 
 
@@ -174,7 +176,7 @@ namespace TicketSystem.Controllers
             {
                 if (_db.Users.Any(u => u.Email == model.Email))
                 {
-                    ModelState.AddModelError("Email", "This email is already registered.");
+                    ModelState.AddModelError("Email", "هذا البريد الإلكتروني مسجل مسبقًا.");
                     return View(model);
                 }
 
@@ -186,13 +188,13 @@ namespace TicketSystem.Controllers
                     _db.Users.Add(model);
                     await _db.SaveChangesAsync();
 
-                    TempData["SuccessMessage"] = "Registration successful! Please log in.";
+                    TempData["SuccessMessage"] = "تم التسجيل بنجاح. يرجى تسجيل الدخول.";
                     return RedirectToAction("Login", "Home"); // Redirect to login instead of Office
                 }
                 catch (Exception)
                 {
                     // In real apps, log the error
-                    ModelState.AddModelError("", "An error occurred. Please try again.");
+                    ModelState.AddModelError("", "حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى.");
                     return View(model);
                 }
             }
@@ -235,7 +237,7 @@ namespace TicketSystem.Controllers
                 return NotFound();
             }
 
-            return View(ticket); // Passing single ticket, not a list
+            return View("~/Views/Office/DetailedTicket.cshtml", ticket); // Use the exact view path to avoid lookup issues
         }
 
         [HttpPost]

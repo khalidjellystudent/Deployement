@@ -93,10 +93,30 @@ namespace TicketSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult WritingTicket(Ticket u, int[] ViolationIds, IFormFile? voiceReport)
+        public IActionResult WritingTicket(Ticket u, int[] ViolationIds, IFormFile? voiceReport, IFormFile? evidenceImage)
         {
             // set who issued the ticket
             u.IssuedBy = User.FindFirst(ClaimTypes.Email)?.Value ?? "Unknown";
+
+            if (evidenceImage == null || evidenceImage.Length == 0)
+            {
+                ViewData["m"] = "يجب رفع صورة مخالفة واحدة على الأقل قبل إصدار التذكرة.";
+                ViewBag.Violations = _db.Violations
+                    .Where(v => v.IsActive)
+                    .OrderBy(v => v.Name)
+                    .ToList();
+                return View("IssueTicket", u);
+            }
+
+            if (!IsAllowedImageFile(evidenceImage))
+            {
+                ViewData["m"] = "يُسمح برفع الصور فقط كدليل للمخالفة.";
+                ViewBag.Violations = _db.Violations
+                    .Where(v => v.IsActive)
+                    .OrderBy(v => v.Name)
+                    .ToList();
+                return View("IssueTicket", u);
+            }
 
             if (ViolationIds == null || ViolationIds.Length == 0)
             {
@@ -126,6 +146,9 @@ namespace TicketSystem.Controllers
             // snapshot names + cost at time of issuing
             u.Violations = string.Join(",", selectedViolations.Select(v => v.Name));
             u.FineAmount = selectedViolations.Sum(v => v.Cost);
+
+            u.EvidenceImageContentType = evidenceImage.ContentType;
+            u.EvidenceImageTempPath = SaveEvidenceImageToTempStorage(evidenceImage);
 
             // handle voice report upload
             if (voiceReport != null && voiceReport.Length > 0)
@@ -217,6 +240,25 @@ namespace TicketSystem.Controllers
                     TempData["ErrorMessage"] = "Invalid ticket data.";
                     return RedirectToAction("ConfirmTicket");
                 }
+
+                if (string.IsNullOrWhiteSpace(ticket.EvidenceImageTempPath) || string.IsNullOrWhiteSpace(ticket.EvidenceImageContentType))
+                {
+                    TempData["PendingTicket"] = ticketJson;
+                    TempData["ErrorMessage"] = "Ticket evidence image is missing.";
+                    return RedirectToAction("ConfirmTicket");
+                }
+
+                var evidencePhysicalPath = GetPhysicalPathFromWebPath(ticket.EvidenceImageTempPath);
+                if (!System.IO.File.Exists(evidencePhysicalPath))
+                {
+                    TempData["PendingTicket"] = ticketJson;
+                    TempData["ErrorMessage"] = "Uploaded evidence image could not be found.";
+                    return RedirectToAction("ConfirmTicket");
+                }
+
+                ticket.EvidenceImageData = System.IO.File.ReadAllBytes(evidencePhysicalPath);
+                System.IO.File.Delete(evidencePhysicalPath);
+                ticket.EvidenceImageTempPath = null;
 
                 // ✅ Check for at least one violation
                 if (string.IsNullOrWhiteSpace(ticket.Violations))
@@ -396,6 +438,70 @@ namespace TicketSystem.Controllers
                 .ToList();
 
             return View("IssueTicket", ticket); // pass the ticket back to the form
+        }
+
+        private static bool IsAllowedImageFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(file.ContentType) || !file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            using var stream = file.OpenReadStream();
+            Span<byte> header = stackalloc byte[12];
+            var bytesRead = stream.Read(header);
+            return HasKnownImageSignature(header.Slice(0, bytesRead));
+        }
+
+        private static bool HasKnownImageSignature(ReadOnlySpan<byte> header)
+        {
+            return (header.Length >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF)
+                || (header.Length >= 8 && header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47 && header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A)
+                || (header.Length >= 6 && header[0] == 0x47 && header[1] == 0x49 && header[2] == 0x46 && header[3] == 0x38 && (header[4] == 0x37 || header[4] == 0x39) && header[5] == 0x61)
+                || (header.Length >= 2 && header[0] == 0x42 && header[1] == 0x4D)
+                || (header.Length >= 12 && header[0] == 0x52 && header[1] == 0x49 && header[2] == 0x46 && header[3] == 0x46 && header[8] == 0x57 && header[9] == 0x45 && header[10] == 0x42 && header[11] == 0x50);
+        }
+
+        private string SaveEvidenceImageToTempStorage(IFormFile file)
+        {
+            var uploadsRoot = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads", "ticket-evidence-temp");
+            Directory.CreateDirectory(uploadsRoot);
+
+            var extension = GetSafeImageExtension(file.ContentType);
+            var fileName = $"ticket_{DateTime.UtcNow:yyyyMMddHHmmss}_{Guid.NewGuid():N}{extension}";
+            var fullPath = Path.Combine(uploadsRoot, fileName);
+
+            using (var fs = new FileStream(fullPath, FileMode.Create))
+            {
+                file.CopyTo(fs);
+            }
+
+            return $"/uploads/ticket-evidence-temp/{fileName}";
+        }
+
+        private static string GetSafeImageExtension(string? contentType)
+        {
+            return contentType?.ToLowerInvariant() switch
+            {
+                "image/jpeg" => ".jpg",
+                "image/jpg" => ".jpg",
+                "image/png" => ".png",
+                "image/gif" => ".gif",
+                "image/bmp" => ".bmp",
+                "image/webp" => ".webp",
+                _ => ".img"
+            };
+        }
+
+        private string GetPhysicalPathFromWebPath(string webPath)
+        {
+            var relative = webPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+            return Path.Combine(_env.WebRootPath ?? "wwwroot", relative);
         }
 
 

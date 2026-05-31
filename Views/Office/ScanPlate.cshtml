@@ -1,30 +1,777 @@
-﻿@{
-    ViewData["Title"] = "Scan License Plate";
+@{
+    ViewData["Title"] = "المسح السريع";
     Layout = "_OfficeLayout";
 }
-<head>
 
-</head>
-<body>
-    <div class="container mt-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4><i class="fas fa-qrcode me-2"></i> Plate Lookup</h4>
-            </div>
+@section Styles {
+    <style>
+        .office-scan-page {
+            max-width: 1100px;
+            margin-inline: auto;
+            color: #0f172a;
+        }
+
+        .office-scan-hero,
+        .office-scan-panel,
+        .office-scan-tool,
+        .office-qr-panel {
+            border: 1px solid #e5e7eb;
+            border-radius: 22px;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .office-scan-hero {
+            background: linear-gradient(135deg, #f8fbff 0%, #ffffff 70%);
+            margin-bottom: 1rem;
+        }
+
+        .office-scan-hero__inner,
+        .office-scan-panel .card-body,
+        .office-scan-panel .card-header {
+            padding: 1.25rem;
+        }
+
+        .office-scan-grid {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .office-scan-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .office-scan-title {
+            margin: 0.85rem 0 0.35rem;
+            font-size: clamp(1.5rem, 3vw, 2.1rem);
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .office-scan-subtitle {
+            margin: 0;
+            color: #64748b;
+            line-height: 1.75;
+        }
+
+        .office-scan-section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.4rem;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .office-scan-section-text {
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .office-scan-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .office-scan-input-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .office-scan-input {
+            flex: 1;
+            min-height: 58px;
+            border-radius: 14px;
+            border: 1px solid #dbe3ef;
+            padding: 0.9rem 1rem;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #0f172a;
+            letter-spacing: 0.04em;
+            box-shadow: none;
+        }
+
+        .office-scan-input::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .office-scan-input:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.12);
+        }
+
+        .office-scan-submit {
+            min-width: 150px;
+            min-height: 58px;
+            border-radius: 14px;
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            font-weight: 700;
+        }
+
+        .office-scan-submit:hover {
+            background: #1e40af;
+            border-color: #1e40af;
+        }
+
+        .office-scan-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .office-scan-tool {
+            padding: 1rem;
+            background: #f8fafc;
+        }
+
+        .office-scan-tool-title {
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.4rem;
+        }
+
+        .office-scan-tool-text {
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 0.85rem;
+        }
+
+        .office-scan-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+        }
+
+        .office-scan-actions .btn {
+            border-radius: 12px;
+            min-width: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+        }
+
+        .office-scan-camera {
+            display: none;
+            margin-top: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 0.9rem;
+            background: #fff;
+        }
+
+        .office-scan-video {
+            width: 100%;
+            max-height: 320px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #0f172a;
+        }
+
+        .office-scan-status {
+            margin-top: 0.75rem;
+            font-size: 0.92rem;
+        }
+
+        .office-qr-panel {
+            padding: 1rem;
+            background: #f8fbff;
+        }
+
+        .office-qr-reader {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            background: #0f172a;
+            min-height: 280px;
+        }
+
+        .office-qr-output {
+            margin-top: 0.85rem;
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .office-qr-output .form-control {
+            min-height: 54px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .office-qr-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+        }
+
+        .office-qr-actions .btn {
+            border-radius: 12px;
+            min-width: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+        }
+
+        @@media (max-width: 768px) {
+            .office-scan-hero__inner,
+            .office-scan-panel .card-body,
+            .office-scan-panel .card-header {
+                padding: 1rem;
+            }
+
+            .office-scan-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .office-scan-input-group,
+            .office-scan-actions,
+            .office-qr-actions {
+                flex-direction: column;
+            }
+
+            .office-scan-submit {
+                width: 100%;
+            }
+
+            .office-scan-actions,
+            .office-scan-actions .btn,
+            .office-scan-actions input,
+            .office-qr-actions .btn,
+            .office-qr-output .form-control {
+                width: 100%;
+            }
+
+            .office-scan-input {
+                min-height: 56px;
+                font-size: 1.1rem;
+            }
+
+            .office-qr-reader {
+                min-height: 240px;
+            }
+        }
+    </style>
+}
+
+<div class="office-scan-page" dir="rtl">
+    <div class="office-scan-hero">
+        <div class="office-scan-hero__inner">
+            <span class="office-scan-kicker">
+                <i class="fas fa-qrcode"></i>
+                المسح السريع
+            </span>
+            <h1 class="office-scan-title">ابحث عن المخالفات وامسح التذكرة من صفحة واحدة</h1>
+            <p class="office-scan-subtitle">البحث اليدوي، قراءة رمز التذكرة، ومسح اللوحة بالكاميرا كلها متاحة هنا بشكل بسيط وواضح.</p>
+        </div>
+    </div>
+
+    @Html.AntiForgeryToken()
+
+    <div class="office-scan-grid">
+        <div class="office-scan-panel">
             <div class="card-body">
+                <div class="office-scan-section-title">
+                    <i class="fas fa-keyboard"></i>
+                    البحث اليدوي
+                </div>
+                <div class="office-scan-section-text">أدخل رقم اللوحة مباشرة للوصول السريع إلى النتائج.</div>
+
                 <form asp-action="SearchTickets" method="get">
-                    <div class="input-group mb-3">
-                        <input type="text"
+                    <label class="office-scan-label" for="plateNumber">رقم اللوحة</label>
+                    <div class="office-scan-input-group">
+                        <input id="plateNumber"
+                               type="text"
                                name="plateNumber"
-                               class="form-control form-control-lg"
-                               placeholder="Enter plate number (e.g. ABC1234)"
+                               class="form-control office-scan-input"
+                               placeholder="ABC1234"
+                               autocomplete="off"
+                               inputmode="text"
                                required>
-                        <button class="btn btn-danger" type="submit">
-                            <i class="fas fa-search me-2"></i> Scan
+                        <button class="btn btn-primary office-scan-submit" type="submit">
+                            <i class="fas fa-search"></i>
+                            بحث
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+
+        <div class="office-qr-panel">
+            <div class="office-scan-section-title mb-2">
+                <i class="fas fa-qrcode"></i>
+                مسح تذكرة QR
+            </div>
+            <div class="office-scan-section-text mb-3">شغّل الكاميرا لمسح رمز التذكرة وفتح التفاصيل مباشرة.</div>
+
+            <div id="qr-reader" class="office-qr-reader"></div>
+
+            <div class="office-qr-output">
+                <div>
+                    <label class="office-scan-label" for="manualInput">النص المقروء أو بديل يدوي</label>
+                    <input id="manualInput" class="form-control" placeholder="/Ticket/Open/123 أو رقم التذكرة" />
+                </div>
+
+                <div class="office-qr-actions">
+                    <button id="btnStart" type="button" class="btn btn-primary">
+                        <i class="fas fa-camera"></i>
+                        تشغيل الكاميرا
+                    </button>
+                    <button id="btnStop" type="button" class="btn btn-outline-secondary" disabled>
+                        <i class="fas fa-stop"></i>
+                        إيقاف
+                    </button>
+                    <button id="btnGo" type="button" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i>
+                        فتح التذكرة
+                    </button>
+                    <button id="btnClear" type="button" class="btn btn-outline-secondary">
+                        مسح
+                    </button>
+                </div>
+
+                <div class="small text-muted" id="statusText">Idle</div>
+                <div class="alert alert-warning d-none mb-0" id="warningBox"></div>
+                <div class="alert alert-success d-none mb-0" id="successBox"></div>
+            </div>
+        </div>
     </div>
-</body>
+
+    <div class="office-scan-panel mt-4">
+        <div class="card-body">
+            <div class="office-scan-section-title">
+                <i class="fas fa-car-side"></i>
+                قراءة اللوحة بالكاميرا أو صورة
+            </div>
+            <div class="office-scan-section-text">التقط اللوحة بالكاميرا أو ارفع صورة واضحة ليتم ملء رقم اللوحة تلقائيًا.</div>
+
+            <div class="office-scan-grid mt-0">
+                <div class="office-scan-tool">
+                    <div class="office-scan-tool-title">التقاط بالكاميرا</div>
+                    <div class="office-scan-tool-text">افتح الكاميرا والتقط صورة مباشرة ليتم التعرف على اللوحة تلقائيًا.</div>
+                    <div class="office-scan-actions">
+                        <button type="button" class="btn btn-outline-primary" id="btnCapturePlate">
+                            <i class="fas fa-camera"></i>
+                            التقاط
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnStartCamera">
+                            <i class="fas fa-play"></i>
+                            تشغيل
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnStopCamera">
+                            <i class="fas fa-stop"></i>
+                            إيقاف
+                        </button>
+                    </div>
+                </div>
+
+                <div class="office-scan-tool">
+                    <div class="office-scan-tool-title">رفع صورة اللوحة</div>
+                    <div class="office-scan-tool-text">ارفع صورة واضحة، وسيتم استخراج رقم اللوحة منها مباشرة.</div>
+                    <div class="office-scan-actions">
+                        <input type="file" class="form-control" id="evidenceImage" accept="image/*" />
+                        <button type="button" class="btn btn-outline-primary" id="btnUploadLpr">
+                            <i class="fas fa-upload"></i>
+                            التعرف
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="lpr-camera" class="office-scan-camera">
+                <video id="lprVideo" class="office-scan-video" autoplay playsinline muted></video>
+                <div id="lprStatus" class="office-scan-status text-muted"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- html5-qrcode (MIT) via CDN -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const plateInput = document.getElementById("plateNumber");
+            const btnStart = document.getElementById('btnStart');
+            const btnStop = document.getElementById('btnStop');
+            const btnGo = document.getElementById('btnGo');
+            const btnClear = document.getElementById('btnClear');
+            const decodedValueEl = document.getElementById('manualInput');
+            const statusText = document.getElementById('statusText');
+            const warningBox = document.getElementById('warningBox');
+            const successBox = document.getElementById('successBox');
+            const btnCapturePlate = document.getElementById("btnCapturePlate");
+            const btnStartCamera = document.getElementById("btnStartCamera");
+            const btnStopCamera = document.getElementById("btnStopCamera");
+            const btnUploadLpr = document.getElementById("btnUploadLpr");
+            const lprUpload = document.getElementById("evidenceImage");
+            const lprWrapper = document.getElementById("lpr-camera");
+            const lprVideo = document.getElementById("lprVideo");
+            const lprStatus = document.getElementById("lprStatus");
+            const antiForgery = document.querySelector('input[name="__RequestVerificationToken"]');
+            const lprCanvas = document.createElement("canvas");
+            let lprStream = null;
+            let html5QrCode = null;
+            let lastDecoded = '';
+
+            function showWarning(msg) {
+                warningBox.textContent = msg;
+                warningBox.classList.remove('d-none');
+                successBox.classList.add('d-none');
+            }
+
+            function showSuccess(msg) {
+                successBox.textContent = msg;
+                successBox.classList.remove('d-none');
+                warningBox.classList.add('d-none');
+            }
+
+            function clearMessages() {
+                warningBox.classList.add('d-none');
+                successBox.classList.add('d-none');
+            }
+
+            function setDecoded(value) {
+                lastDecoded = value || '';
+                decodedValueEl.value = lastDecoded;
+                if (lastDecoded) {
+                    manualInput.value = lastDecoded;
+                }
+            }
+
+            function normalizeToSafeLocalUrl(input) {
+                const raw = (input || '').trim();
+                if (!raw) return null;
+
+                if (/^\d+$/.test(raw)) {
+                    return `/Ticket/Open/${raw}`;
+                }
+
+                if (raw.startsWith('/')) {
+                    return raw;
+                }
+
+                try {
+                    const u = new URL(raw);
+                    if (u.origin !== window.location.origin) {
+                        return null;
+                    }
+                    return u.pathname + u.search + u.hash;
+                } catch {
+                    return null;
+                }
+            }
+
+            function openTicketFromInput(value) {
+                clearMessages();
+
+                const safePath = normalizeToSafeLocalUrl(value);
+                if (!safePath) {
+                    showWarning('Blocked: QR code is not a valid link for this site.');
+                    return;
+                }
+
+                if (!safePath.toLowerCase().startsWith('/ticket/open')) {
+                    showWarning('Blocked: only /Ticket/Open/* links are allowed.');
+                    return;
+                }
+
+                showSuccess('Opening ticket…');
+                window.location.href = safePath;
+            }
+
+            function isSecureForCamera() {
+                return !!window.isSecureContext;
+            }
+
+            function formatCameraError(err) {
+                if (!err) return 'Unknown camera error.';
+                const name = err.name || '';
+                const message = err.message || err.toString();
+                return name ? `${name}: ${message}` : message;
+            }
+
+            btnGo.addEventListener('click', function () {
+                openTicketFromInput(manualInput.value);
+            });
+
+            btnClear.addEventListener('click', function () {
+                setDecoded('');
+                manualInput.value = '';
+                clearMessages();
+            });
+
+            btnStart.addEventListener('click', async function () {
+                clearMessages();
+
+                if (!window.Html5Qrcode) {
+                    showWarning('QR scanner library failed to load. Check internet access.');
+                    return;
+                }
+
+                if (!isSecureForCamera()) {
+                    showWarning('Camera access requires HTTPS (secure context). Open this site via https:// or run using the HTTPS profile.');
+                    statusText.textContent = 'Blocked (not HTTPS)';
+                    return;
+                }
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    showWarning('This browser does not support camera access (getUserMedia). Try Chrome/Edge/Safari (latest) and avoid in-app browsers.');
+                    return;
+                }
+
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode('qr-reader');
+                }
+
+                btnStart.disabled = true;
+                btnStop.disabled = false;
+                statusText.textContent = 'Requesting camera permission…';
+
+                try {
+                    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                    const onScanSuccess = function (decodedText) {
+                        if (!decodedText || decodedText === lastDecoded) return;
+                        setDecoded(decodedText);
+                        statusText.textContent = 'QR detected';
+                        openTicketFromInput(decodedText);
+                    };
+                    const onScanFailure = function (_) { };
+
+                    try {
+                        await html5QrCode.start(
+                            { facingMode: { ideal: 'environment' } },
+                            config,
+                            onScanSuccess,
+                            onScanFailure
+                        );
+                    } catch (primaryErr) {
+                        const cameras = await Html5Qrcode.getCameras();
+                        if (!cameras || cameras.length === 0) {
+                            throw primaryErr;
+                        }
+
+                        const preferred = cameras.find(c => /back|rear|environment/i.test(c.label)) || cameras[0];
+                        await html5QrCode.start(
+                            { deviceId: { exact: preferred.id } },
+                            config,
+                            onScanSuccess,
+                            onScanFailure
+                        );
+                    }
+
+                    statusText.textContent = 'Scanning…';
+                } catch (err) {
+                    console.error(err);
+                    showWarning('Camera failed to start. ' + formatCameraError(err));
+                    statusText.textContent = 'Stopped / blocked';
+                    btnStart.disabled = false;
+                    btnStop.disabled = true;
+                }
+            });
+
+            btnStop.addEventListener('click', async function () {
+                clearMessages();
+                if (!html5QrCode) return;
+
+                try {
+                    await html5QrCode.stop();
+                    await html5QrCode.clear();
+                } catch (err) {
+                    // ignore
+                }
+
+                statusText.textContent = 'Stopped';
+                btnStart.disabled = false;
+                btnStop.disabled = true;
+            });
+
+            function setLprStatus(message, type = "muted") {
+                if (!lprStatus) return;
+                const classes = ["text-muted", "text-success", "text-warning", "text-danger", "text-info"];
+                lprStatus.classList.remove(...classes);
+                lprStatus.classList.add(`text-${type}`);
+                lprStatus.textContent = message || "";
+            }
+
+            async function startCamera() {
+                if (!lprWrapper) return;
+                lprWrapper.style.display = "block";
+
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    setLprStatus("المتصفح لا يدعم تشغيل الكاميرا.", "danger");
+                    return;
+                }
+
+                if (lprStream) {
+                    setLprStatus("الكاميرا جاهزة.", "success");
+                    return;
+                }
+
+                try {
+                    setLprStatus("جاري تشغيل الكاميرا...", "info");
+                    lprStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                    lprVideo.srcObject = lprStream;
+                    setLprStatus("الكاميرا تعمل. اضغط التقاط للتعرف.", "success");
+                } catch (err) {
+                    setLprStatus("تعذر تشغيل الكاميرا: " + err.message, "danger");
+                }
+            }
+
+            function stopCamera(keepStatus = false) {
+                if (lprStream) {
+                    lprStream.getTracks().forEach(t => t.stop());
+                    lprStream = null;
+                }
+                if (lprVideo) {
+                    lprVideo.srcObject = null;
+                }
+                if (!keepStatus) {
+                    setLprStatus("تم إيقاف الكاميرا.", "muted");
+                }
+            }
+
+            async function captureAndRecognize() {
+                await startCamera();
+                if (!lprStream || !lprVideo || !lprCanvas) return;
+
+                const originalLabel = btnCapturePlate.innerHTML;
+                btnCapturePlate.disabled = true;
+                btnCapturePlate.innerHTML = '<span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"></span>جارٍ التعرف...';
+                setLprStatus("جارٍ التقاط صورة وإرسالها للتعرف...", "info");
+
+                lprCanvas.width = lprVideo.videoWidth || 640;
+                lprCanvas.height = lprVideo.videoHeight || 480;
+                const ctx = lprCanvas.getContext("2d");
+                ctx.drawImage(lprVideo, 0, 0, lprCanvas.width, lprCanvas.height);
+
+                lprCanvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        setLprStatus("تعذر إنشاء الصورة الملتقطة.", "danger");
+                        btnCapturePlate.disabled = false;
+                        btnCapturePlate.innerHTML = originalLabel;
+                        stopCamera(true);
+                        return;
+                    }
+
+                    const file = new File([blob], "plate.jpg", { type: "image/jpeg" });
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    if (lprUpload) {
+                        lprUpload.files = dt.files;
+                    }
+
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    if (antiForgery) formData.append(antiForgery.name, antiForgery.value);
+
+                    try {
+                        const resp = await fetch("@Url.Action("RecognizeFrame", "Lpr")", { method: "POST", body: formData });
+                        const data = await resp.json();
+
+                        if (!resp.ok) {
+                            const detail = data?.error || data?.detail || "تعذر التعرف على اللوحة.";
+                            throw new Error(detail);
+                        }
+
+                        if (data?.plate) {
+                            plateInput.value = data.plate.toUpperCase();
+                            const confidenceText = typeof data?.confidencePercentage === "number"
+                                ? ` (نسبة الثقة: ${data.confidencePercentage.toFixed(2)}%)`
+                                : "";
+                            setLprStatus("تم ملء رقم اللوحة تلقائياً: " + data.plate + confidenceText, "success");
+                        } else {
+                            setLprStatus("لم يتم العثور على لوحة في اللقطة، حاول مرة أخرى.", "warning");
+                        }
+                    } catch (err) {
+                        setLprStatus("فشل التعرف: " + err.message, "danger");
+                    } finally {
+                        btnCapturePlate.disabled = false;
+                        btnCapturePlate.innerHTML = originalLabel;
+                        stopCamera(true);
+                    }
+                }, "image/jpeg", 0.9);
+            }
+
+            async function uploadAndRecognize() {
+                if (!lprUpload || !lprUpload.files?.length) {
+                    setLprStatus("يرجى اختيار صورة للوحة.", "warning");
+                    return;
+                }
+
+                const file = lprUpload.files[0];
+                if (!file.type || !file.type.startsWith("image/")) {
+                    setLprStatus("فقط صور اللوحات مسموح بها.", "danger");
+                    lprUpload.value = "";
+                    return;
+                }
+
+                const originalLabel = btnUploadLpr.innerHTML;
+                btnUploadLpr.disabled = true;
+                btnUploadLpr.innerHTML = '<span class="spinner-border spinner-border-sm ms-1" role="status" aria-hidden="true"></span>جارٍ التعرف...';
+                setLprStatus("جارٍ إرسال الصورة للتعرف...", "info");
+
+                const formData = new FormData();
+                formData.append("file", file);
+                if (antiForgery) formData.append(antiForgery.name, antiForgery.value);
+
+                try {
+                    const resp = await fetch("@Url.Action("RecognizeFrame", "Lpr")", { method: "POST", body: formData });
+                    const data = await resp.json();
+
+                    if (!resp.ok) {
+                        const detail = data?.error || data?.detail || "تعذر التعرف على اللوحة.";
+                        throw new Error(detail);
+                    }
+
+                    if (data?.plate) {
+                        plateInput.value = data.plate.toUpperCase();
+                        const confidenceText = typeof data?.confidencePercentage === "number"
+                            ? ` (نسبة الثقة: ${data.confidencePercentage.toFixed(2)}%)`
+                            : "";
+                        setLprStatus("تم ملء رقم اللوحة تلقائياً: " + data.plate + confidenceText, "success");
+                    } else {
+                        setLprStatus("لم يتم العثور على لوحة في الصورة.", "warning");
+                    }
+                } catch (err) {
+                    setLprStatus("فشل التعرف: " + err.message, "danger");
+                } finally {
+                    btnUploadLpr.disabled = false;
+                    btnUploadLpr.innerHTML = originalLabel;
+                }
+            }
+
+            btnCapturePlate?.addEventListener("click", captureAndRecognize);
+            btnStartCamera?.addEventListener("click", startCamera);
+            btnStopCamera?.addEventListener("click", stopCamera);
+            btnUploadLpr?.addEventListener("click", uploadAndRecognize);
+        });
+    </script>
+}
